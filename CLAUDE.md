@@ -15,7 +15,8 @@ Développé jusqu'ici dans Claude (artefact), version V9.5. Valentin pilote, gé
 ## Arborescence
 - `index.html` : le jeu.
 - `img/bg.webp` carte 1672×941 (clairière, 4 entrées en coin) ; `img/ebouA|ebouB.webp` éboulis des entrées 3 et 4.
-- `img/b/` bâtiments · `img/u/<id>_{idle,w1,w2,atk}.webp` unités/héros · `img/m/<id>_{w1,w2,atk,dead}.webp` + `_rim` monstres · `img/i/` icônes 128² · `img/fx/<nom>.webp` effets (bande de 6 frames 128²).
+- `img/wallA|B{,2,3}{,d}.webp` palissades par niveau (d = abîmée) · `img/gate2|gateD|gateX.webp` porte intacte/abîmée/détruite · `img/totem|totemOn.webp` totems d'entrée
+- `img/b/` bâtiments (dont `tower_archers|baliste|mage`, `merchant`) · `img/u/<id>_{idle,w1,w2,atk}.webp` unités/héros · `img/m/<id>_{w1,w2,atk,dead}.webp` + `_rim` monstres · `img/i/` icônes 128² · `img/fx/<nom>.webp` effets (bande de 6 frames 128²).
 - `tools/sprites.py` : découpe des planches (voir plus bas).
 
 ## Architecture du code (index.html)
