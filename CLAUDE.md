@@ -15,8 +15,8 @@ Développé jusqu'ici dans Claude (artefact), version V9.5. Valentin pilote, gé
 ## Arborescence
 - `index.html` : le jeu.
 - `img/bg.webp` carte 1672×941 (clairière, 4 entrées en coin) ; `img/ebouA|ebouB.webp` éboulis des entrées 3 et 4.
-- `img/wallA|B{,2,3}{,d}.webp` palissades par niveau (d = abîmée) · `img/gate2|gateD|gateX.webp` porte intacte/abîmée/détruite · `img/totem|totemOn.webp` totems d'entrée
-- `img/b/` bâtiments (dont `tower_archers|baliste|mage`, `merchant`) · `img/u/<id>_{idle,w1,w2,atk}.webp` unités/héros · `img/m/<id>_{w1,w2,atk,dead}.webp` + `_rim` monstres · `img/i/` icônes 128² · `img/fx/<nom>.webp` effets (bande de 6 frames 128²).
+- `img/wallA|B{,2,3}{,d}.webp` palissades par niveau (d = abîmée) · `img/gate2|gateD|gateX.webp` porte intacte/abîmée/détruite · `img/totem|totemOn.webp` totems d'entrée · `img/stone{A,B,P}` mur de pierre (+`d` fissuré, `x` ruine) · `img/keep1|keep2.webp` donjon niv. 1 / niv. 2+
+- `img/b/` bâtiments (dont `tower_archers|baliste|mage`, `merchant`) · `img/u/<id>_{idle,w1,w2,atk}.webp` unités/héros · `img/m/<id>_{w1,w2,atk,dead}.webp` + `_rim` monstres · `img/i/` icônes 128² · `img/fx/<nom>.webp` effets (bande de 6 frames 128², dont poison, rock, boom, heal, lvlup, douse).
 - `tools/sprites.py` : découpe des planches (voir plus bas).
 
 ## Architecture du code (index.html)
@@ -30,6 +30,7 @@ Développé jusqu'ici dans Claude (artefact), version V9.5. Valentin pilote, gé
   - monstres : champs de flux Dijkstra `navEnsure()`/`ffStep()` (coût des murs selon leurs PV, `navVer` à incrémenter quand la grille change) ; ils s'arrêtent et frappent les barricades ; Fouisseur creuse 4 s.
   - unités : A* + lissage `astar()`/`navTo()`, contournent palissades, passent par les portes ; `rangedSpot()` garde tireurs/mages derrière l'enceinte si elle est fermée.
   - `wallBetween(a,b)` empêche de frapper à travers une barricade ; les monstres ciblent les unités avant les défenses (sauf Brutes et Béliers).
+- **Ordres** : `u.mv` = ordre du joueur en cours (déplacement/patrouille/garde), l'unité ignore les ennemis jusqu'à destination (14 s max). Poursuite tenue à 420 px du poste.
 - **Boucle** : `step(dt)` logique · `draw(t)` rendu canvas (tri par profondeur, `outlined()` surbrillance, `ghostLine()` contour des unités cachées derrière un bâtiment, `occBy()`) · `refresh()` HUD · `hud()` plaque jour/nuit.
 - **VFX** : `fxAdd(nom,x,y,{f0,f1,dur,sz,rot,flip,add})`, `fxFrame()`, `fire()` (flammes animées).
 - **UI** : barre du bas `renderCards()` (onglets b, d, p, u, w, h = Héros), cadre d'unité compact `#info.uf` (3 lignes, à droite des ressources), fenêtres bâtiment `bldModal`, `dialog()/closeDlg()` (clic à côté ferme), rapport de l'aube `showReport()` (auto-fermeture 10 s), accueil `hmRender()`, menu (Progression, Arbre, Hauts faits, Bestiaire, Encyclopédie, Règles, Paramètres, Sauvegarder, Recharger, Recommencer, Accueil).
