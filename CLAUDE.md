@@ -21,7 +21,7 @@ Développé jusqu'ici dans Claude (artefact), version V9.5. Valentin pilote, gé
 ## Architecture du code (index.html)
 - **Monde iso 2:1** : `WW,WH` (taille carte), `TW=64,TH=32,OX,OY`, `MK` (échelle, laissée à 1 : Valentin a refusé ×1,5 et ×2). `iso(i,j)`, `cellOf(x,y)`.
 - **Temps** : `DAY=120, NIGHT=110` en secondes de jeu, `TIME=2` (×1 = 2 s de jeu par seconde réelle). Phases `S.phase` = day / night / dawn ; `S.eclipse` = mini-nuit de jour.
-- **Données** : `B` bâtiments (lv[], up[], ut[], un[]), `U` gardes, `W` villageois, `ALLU`, `M` monstres, `HEROES`/`HD`, `SK` compétences héros, `REQ` déblocages, `TIERS` arbre, `LISTS` onglets bas, `EQ/EQC` armurerie, `TV` spécialisations de tour, `NIGHTS`, `CHALS`, `SEASONS`, `ELITES`, `ACH` hauts faits, `NOTES` notes de version (à compléter à chaque version).
+- **Données** : `B` bâtiments (lv[], up[], ut[], un[]), `U` gardes, `W` villageois, `ALLU`, `M` monstres, `HEROES`/`HD`, `SK` compétences héros, `REQ` déblocages, `TIERS` arbre, `LISTS` onglets bas, `EQ/EQC` armurerie, `TV` spécialisations de tour, `NIGHTS`, `HTABLES` tables de groupes de la horde (débloquées par nuit `t`, budget `hBudget`, coût `MCOST`), `CHALS`, `SEASONS`, `ELITES`, `ACH` hauts faits, `NOTES` notes de version (à compléter à chaque version).
 - **Dés Amertüme (d6)** : `roll(dice,def,mul)`. W blanc compte s'il dépasse la DEF ; R rouge ignore la DEF ; B mystique doit dépasser la DEF, doublé sur double ; double 1 = Échec.
 - **Grille** : `S.grid` Map "i,j" → bâtiment ; `CELLSET` cellules constructibles (généré depuis le masque de la clairière) ; la porte occupe 2 cases (`b.cells`, `gateCells`).
 - **Entrées** : `ENTRY` (chemins en coordonnées carte), `openEntries(jour)` : 2 au départ, 3 dès la nuit 4, 4 dès la nuit 8. Totem d'entrée dessiné à `entMk(e)`.
@@ -52,4 +52,4 @@ Bloc de style à mettre en tête des prompts de planches :
 - Réponses en **français**, courtes et concrètes ; il envoie souvent plusieurs retours d'affilée en cours de travail : les traiter tous.
 - Il teste et renvoie des captures : corriger, vérifier en capture, puis livrer.
 - Ne jamais toucher l'échelle globale sans qu'il le demande.
-- Ajouter une entrée dans `NOTES` pour chaque version livrée.
+- **Version** : constante `VERSION` dans `index.html` (affichée sur l'accueil, le menu et le titre de l'onglet). L'augmenter à **chaque push** (0.9 → 0.9.1 → 0.9.2…, palier rond sur demande de Valentin) et ajouter une entrée `NOTES` du même numéro.
