@@ -1,7 +1,7 @@
 # Les Nuits de Lamuline — passation
 
 Jeu navigateur de défense jour/nuit dans l'univers du JDR **Amertüme** (Big Budi Games, Valentin Drouet).
-Le jour : bâtir, recruter, améliorer. La nuit : la horde de la Charogne arrive par les chemins et marche sur le donjon. Objectif : tenir 10 nuits, puis mode infini.
+Le jour : bâtir, recruter, améliorer. La nuit : la horde de la Charogne arrive par les chemins et marche sur le donjon. Objectif : tenir 25 nuits (`GOAL`), puis mode infini.
 
 Développé jusqu'ici dans Claude (artefact), version V9.5. Valentin pilote, génère les planches de sprites avec une autre IA, et Claude les intègre.
 
@@ -30,6 +30,8 @@ Développé jusqu'ici dans Claude (artefact), version V9.5. Valentin pilote, gé
   - monstres : champs de flux Dijkstra `navEnsure()`/`ffStep()` (coût des murs selon leurs PV, `navVer` à incrémenter quand la grille change) ; ils s'arrêtent et frappent les barricades ; Fouisseur creuse 4 s.
   - unités : A* + lissage `astar()`/`navTo()`, contournent palissades, passent par les portes ; `rangedSpot()` garde tireurs/mages derrière l'enceinte si elle est fermée.
   - `wallBetween(a,b)` empêche de frapper à travers une barricade ; les monstres ciblent les unités avant les défenses (sauf Brutes et Béliers).
+- **Terrain** : `CELLSET` clairière constructible, `CORR` couloirs d'entrée (murs/portes/pièges seulement, `validFor`) ; hors des deux, la horde ne passe pas (`walkM`, coût 1e6 dans `navEnsure`, distances `dij` en Float64 sinon boucle infinie).
+- **Siège** : `SIEGE()` multiplie les dégâts des monstres contre les bâtiments ; DEF bâtiment = −8 %/pt (max 60 %) ; monstres coincés (`m.stuck`) frappent la barricade voisine. `SV` armes de rempart (mur de pierre niv. 3), `VARS` = spécialisations par type, `sgate` porte fortifiée (`GATE(t)`).
 - **Ordres** : `u.mv` = ordre du joueur en cours (déplacement/patrouille/garde), l'unité ignore les ennemis jusqu'à destination (14 s max). Poursuite tenue à 420 px du poste.
 - **Boucle** : `step(dt)` logique · `draw(t)` rendu canvas (tri par profondeur, `outlined()` surbrillance, `ghostLine()` contour des unités cachées derrière un bâtiment, `occBy()`) · `refresh()` HUD · `hud()` plaque jour/nuit.
 - **VFX** : `fxAdd(nom,x,y,{f0,f1,dur,sz,rot,flip,add})`, `fxFrame()`, `fire()` (flammes animées).
