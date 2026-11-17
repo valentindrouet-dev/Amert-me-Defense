@@ -1148,7 +1148,9 @@ function posEntTip(){const t=$('tip'),p=scrOf(hoverEnt),w=t.offsetWidth*UIZ(),hh
 function placeTip(){if(!hoverEnt)return;if(hoverEnt.d.s){tipFor=null;showTip(descEnt(hoverEnt),mouse.x,mouse.y);return}const t=$('tip'),h=descEnt(hoverEnt);if(t._h!==h){t.innerHTML=h;t._h=h}t.style.display='block';posEntTip()}
 function pickAt(w){
   let e=S.mons.slice().reverse().find(m=>Math.abs(w.x-m.x)<m.w*.45&&w.y>m.y-m.h&&w.y<m.y+5)||S.units.slice().reverse().find(u=>!u.hidden&&Math.abs(w.x-u.x)<(u.d.mount?16:11)&&w.y>u.y-(u.hero?40:32)&&w.y<u.y+6);if(e)return e;
-  const c=cellOf(w.x,w.y);return S.grid.get(key(c.i,c.j))||null;
+  const c=cellOf(w.x,w.y),cb=S.grid.get(key(c.i,c.j));if(cb&&cb.d.trap)return cb;
+  const sb=S.blds.filter(b=>!b.d.trap&&b._hit).sort((a,b)=>(b.y+(b.d.s-1)*TH*.25)-(a.y+(a.d.s-1)*TH*.25)).find(b=>hitSprite(b,w));
+  return sb||cb||null;
 }
 // cursors
 const svgCur=(s,x,y)=>`url("data:image/svg+xml,${encodeURIComponent(s)}") ${x} ${y}, auto`;
@@ -1382,8 +1384,9 @@ $('res').addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')hideTip(
 $('res').addEventListener('click',e=>{if(resHover){hideTip();return}showResTip();setTimeout(()=>{if(resHover)hideTip()},3500)});
 function repairCost(b){const base=b.d.cost||b.d.base,f=(b.max-b.hp)/b.max*.6,o={};for(const k in base){const v=Math.ceil(base[k]*f);if(v)o[k]=v}return o}
 const NOLV=new Set(['wall','gate','stone']);
-function canUpB(b){return !b.build&&!b.upg&&b.d.up&&b.lv<b.d.lv.length&&b.d.up[b.lv]&&afford(b.d.up[b.lv])}
+function canUpB(b){return !nightLock()&&!b.build&&!b.upg&&b.d.up&&b.lv<b.d.lv.length&&b.d.up[b.lv]&&afford(b.d.up[b.lv])}
 function startUpgrade(b){
+  if(nightLock())return toast('On n\'améliore que de jour.');
   const c=b.d.up[b.lv];if(!afford(c))return toast('Pas assez de ressources.');
   pay(c);b.upg={left:b.d.ut[b.lv],total:b.d.ut[b.lv]};toast(b.d.n+' : amélioration lancée.');refresh();
 }
@@ -1395,8 +1398,8 @@ function openInfo(e){
   else if(b){
     if(b.build)a.push(`<button class="btn" id="iC">${ic('close')}Annuler le chantier (+100 %)</button>`);
     else{
-      if(b.lv<b.d.lv.length&&!b.upg&&!(b.t==='tower'&&b.lv===2))a.push(`<button class="btn hot" id="iU">${ic('up')}Améliorer</button>`);
-      if(b.t==='wall'&&!b.upg){const ws=S.blds.filter(w=>w.t==='wall'&&w.lv===b.lv&&!w.build&&!w.upg);if(ws.length>1&&b.lv<3)a.push(`<button class="btn" id="iUA">${ic('up')}Toutes (${ws.length})</button>`)}
+      if(!nightLock()&&b.lv<b.d.lv.length&&!b.upg&&!(b.t==='tower'&&b.lv===2))a.push(`<button class="btn hot" id="iU">${ic('up')}Améliorer</button>`);
+      if(b.t==='wall'&&!b.upg&&!nightLock()){const ws=S.blds.filter(w=>w.t==='wall'&&w.lv===b.lv&&!w.build&&!w.upg);if(ws.length>1&&b.lv<3)a.push(`<button class="btn" id="iUA">${ic('up')}Toutes (${ws.length})</button>`)}
       if(!b.d.trap&&b.hp<b.max)a.push(`<button class="btn" id="iR">${ic('repair')}Réparer <span class="cost">${costHtml(repairCost(b))}</span></button>`);
       if(b.t!=='keep')a.push(`<button class="btn" id="iD">${ic('trash')}Démolir</button>`);
     }
@@ -1408,7 +1411,7 @@ function openInfo(e){
   $('iActs').innerHTML=a.join('');
   const on=(id,f)=>{const el=$(id);if(el)el.onclick=f};
   on('iU',()=>{startUpgrade(b);openInfo(b)});
-  on('iUA',()=>{const ws=S.blds.filter(w=>w.t==='wall'&&w.lv===b.lv&&!w.build&&!w.upg);let c={},n=0;for(const w of ws){const nc=sumCost(c,b.d.up[w.lv]);if(!afford(nc))break;c=nc;n++}
+  on('iUA',()=>{if(nightLock())return toast('On n\'améliore que de jour.');const ws=S.blds.filter(w=>w.t==='wall'&&w.lv===b.lv&&!w.build&&!w.upg);let c={},n=0;for(const w of ws){const nc=sumCost(c,b.d.up[w.lv]);if(!afford(nc))break;c=nc;n++}
     if(!n)return toast('Pas assez de ressources.');pay(c);ws.slice(0,n).forEach(w=>w.upg={left:b.d.ut[w.lv],total:b.d.ut[w.lv]});toast(n+' palissades en amélioration.');refresh();openInfo(b)});
   on('iR',()=>{const rc=repairCost(b);if(!afford(rc))return toast('Pas assez de ressources.');pay(rc);b.hp=b.max;refresh();openInfo(b)});
   on('iD',()=>{refund(b.d.cost,.5);removeBld(b,false);refresh()});
@@ -1425,7 +1428,7 @@ function lvVal(k,v,d){if(k==='night'||k==='disc'||k==='merc')return Math.round(v
 function keepHtml(){return`<div class="sec"><h4>${ic('lvlup')}Talents du donjon · ${S.sp} point${S.sp>1?'s':''}</h4><div class="sub">Un point toutes les deux nuits repoussées.</div>`+Object.entries(KSK).map(([k,v])=>`<div class="eqr"><img alt="" src="img/i/${{rem:'def',eco:'prod',gar:'def',forge:'dmg',med:'heal',vig:'range'}[k]}.webp"><div class="eqi"><b>${v.n}</b><span class="pips">${[0,1,2].map(i=>`<i class="${i<S.sk[k]?'on':''}"></i>`).join('')}</span><div class="sub">${v.d} par rang</div></div>${S.sk[k]<3?`<button class="btn" data-ksk="${k}" ${S.sp<1?'disabled':''}>+1</button>`:''}</div>`).join('')+'</div>'}
 function marketHtml(b){const r=L(b).rate;return`<div class="sec"><h4>${ic('prod')}Échanges</h4><div class="trades">`+TRADES.map(([a,c,x,y],i)=>`<button class="btn" data-trade="${i}" ${S.res[a]<x?'disabled':''}>${ic(a)}${x} → ${ic(c)}${Math.round(y*r)}</button>`).join('')+`</div>${S.phase==='night'?`<button class="btn hot" data-merc="1" style="margin-top:8px" ${!afford({vivres:60,bois:30})||popUsed()>=popCap()?'disabled':''}>${ic('recruit')}Mercenaire d'urgence <span class="cost">${costHtml({vivres:60,bois:30})}</span></button>`:'<div class="sub" style="margin-top:6px">La nuit, le Marché permet d\'engager un mercenaire d\'urgence.</div>'}</div>`}
 function towerHtml(b){if(b.lv>=3&&b.var)return`<div class="sec"><h4>${ic('lvlup')}Spécialisation</h4><div class="sub"><b>${TV[b.var].n}</b> : ${TV[b.var].d}</div></div>`;
-  return`<div class="sec"><h4>${ic('lvlup')}Spécialisation au niveau 3</h4><div class="tvs">`+Object.entries(TV).map(([k,v])=>`<button class="btn" data-tv="${k}" ${b.upg||!afford(b.d.up[2])?'disabled':''}><b>${v.n}</b><small>${v.d} ${dice(v.dice)} · portée ${v.range}</small></button>`).join('')+`</div><div class="cost" style="margin-top:6px">${costHtml(b.d.up[2])}<span>${ic('time')}${fmtT(b.d.ut[2])}</span></div></div>`}
+  return`<div class="sec"><h4>${ic('lvlup')}Spécialisation au niveau 3</h4><div class="tvs">`+Object.entries(TV).map(([k,v])=>`<button class="btn" data-tv="${k}" ${b.upg||nightLock()||!afford(b.d.up[2])?'disabled':''}><b>${v.n}</b><small>${v.d} ${dice(v.dice)} · portée ${v.range}</small></button>`).join('')+`</div><div class="cost" style="margin-top:6px">${costHtml(b.d.up[2])}<span>${ic('time')}${fmtT(b.d.ut[2])}</span></div></div>`}
 function bldModal(b){const d=b.d,l=L(b),nl=d.lv.length;
   let bars=d.trap?'':hpBar(b.hp,b.max);
   if(b.build)bars=hpBar(b.build.total-b.build.left,b.build.total,'c',`${ic('build')} Chantier ${Math.floor((1-b.build.left/b.build.total)*100)} % · ${fmtT(b.build.left)}`)+bars;
@@ -1450,7 +1453,7 @@ $('info').addEventListener('click',e=>{
     if(ds.ksk){if(S.sp<1)return;S.sp--;S.sk[ds.ksk]++;if(ds.ksk==='rem')for(const b of S.blds){const f=b.hp/b.max;b.max=Math.round((L(b).hp||1)*bHpMul());b.hp=Math.round(b.max*f)}toast(KSK[ds.ksk].n+' rang '+S.sk[ds.ksk]+'.')}
     else if(ds.trade){const [a,c,x,y]=TRADES[+ds.trade],r=L(sel).rate;if(S.res[a]<x)return;S.res[a]-=x;S.res[c]+=Math.round(y*r);toast('Échange conclu.')}
     else if(ds.merc){if(!afford({vivres:60,bois:30})||popUsed()>=popCap())return;pay({vivres:60,bois:30});const m=addUnit('gardien');m.lv=2;m.xp=xpNeed(1);refreshMax();m.hp=m.max;toast('Un mercenaire accourt au donjon.')}
-    else if(ds.tv){const b=sel,c=b.d.up[2];if(!afford(c))return toast('Pas assez de ressources.');pay(c);b.upg={left:b.d.ut[2],total:b.d.ut[2],var:ds.tv};toast(TV[ds.tv].n+' : travaux lancés.')}
+    else if(ds.tv){if(nightLock())return toast('On n\'améliore que de jour.');const b=sel,c=b.d.up[2];if(!afford(c))return toast('Pas assez de ressources.');pay(c);b.upg={left:b.d.ut[2],total:b.d.ut[2],var:ds.tv};toast(TV[ds.tv].n+' : travaux lancés.')}
     else if(ds.stance){const l=sel.multi?selU.filter(u=>!u.worker):[sel];for(const x of l)x.stance=ds.stance;toast({hold:'Tenir la position',zone:'Défendre la zone',pursue:'Poursuivre'}[ds.stance]+'.')}
     else if(ds.spec){u.spec=ds.spec;refreshMax();toast(u.d.n+' devient '+SPEC[ds.spec].n+'.');burst(u.x,u.y-14,'#ffd27a',12)}
     else if(ds.skill){const sk=SK[u.t];if((u.skT||0)>S.clock)return;const r=sk.fn(u);if(r===false)return toast('Aucune cible à portée.');u.skT=S.clock+sk.cd*TIME;float(u.x,u.y-46,sk.n,'#ffd27a',1)}
@@ -1574,9 +1577,10 @@ const ACH=[
 function metaTick(nightKills){const m=metaG();m.ach=m.ach||{};m.kills=(m.kills||0)+(nightKills||0);m.best=Math.max(m.best||0,S.day);
   for(const u of S.units)if(!u.worker&&(u.kills||0)>((m.star&&m.star.k)||0))m.star={t:u.t,n:u.d.n,k:u.kills,lv:u.lv,day:S.day,hero:!!u.hero};
   for(const a of ACH)if(!m.ach[a.id]&&a.f(S,m)){m.ach[a.id]=Date.now();toast('Haut fait débloqué : '+a.n+' !')}metaS(m)}
-const VERSION='0.9';
+const VERSION='0.9.1';
 document.querySelectorAll('[data-ver]').forEach(e=>e.textContent='v'+VERSION);document.title='Les Nuits de Lamuline · v'+VERSION;
 const NOTES=[
+  ['v0.9.1','Corrections visuelles',['Plus d\'amélioration la nuit : flèche, bouton et travaux sont réservés au jour','Le bélier et la charogne cuirassée n\'ont plus de bout de bois ou de plaques dessinés par-dessus leur sprite','Ombres au sol douces sous les unités et les monstres','Un bâtiment se sélectionne en survolant tout son dessin, pas seulement ses cases au sol']],
   ['v0.9','Hordes en tables, nuits sans chantier, confort d\'interface',['Numéro de version affiché sur l\'accueil et dans le menu','Les hordes sont tirées dans des tables de groupes aléatoires, plus nombreuses et plus dures nuit après nuit','On ne peut plus bâtir la nuit (ni pendant une éclipse)','Une flèche dorée flotte au-dessus des bâtiments qu\'on peut améliorer','Niveau affiché en bas à droite des bâtiments niveau 2 et plus','Réglage de la taille de l\'interface dans les Paramètres','Un clic sur la carte relance une partie en pause','Les messages s\'empilent au-dessus de la barre du bas']],
   ['V8','Accueil, effets et nouveaux sprites',['Page d\'accueil : sauvegardes, hauts faits, unité phare, notes','Cadre d\'unité compact façon Warcraft','Hall des Charognards : bonus de dégâts par espèce traquée','Bestiaire qui se remplit à mesure des rencontres','Porte de palissade sur deux cases, posée sur une palissade','La horde vise les unités avant les défenses','Effets visuels : flèches, feu, glace, lumière, sang, morts, foudre, acide','Sprites des 8 bâtiments, 4 unités et 9 monstres manquants, nouvelles icônes']],
   ['V7','Échelle et barricades',['Monde deux fois plus grand : bâtiments et unités plus petits, quatre fois plus de place','Barricades étanches : la horde doit les abattre, le Fouisseur creuse 4 s','Production : toujours 1 ressource par tick, la cadence accélère','Rapport de l\'aube refait, fermeture automatique','Bloc des unités et production par seconde en haut à gauche','Page d\'accueil, sauvegardes et hauts faits']],
@@ -1752,7 +1756,20 @@ function bodyBld(g,b,t){
   else if(b.t==='tower'){if(!spr(g,'tower',x,y+TH/2-1,SZ.tower+(b.lv-1)*3))drawTower(g,x,y,b.build?-1:t,b.lv)}
   else if(b.t==='brazier'){if(!spr(g,'brazier',x,y+7,SZ.brazier+(b.lv-1)*4))drawBrazier(g,x,y,b.build?-1:t,b.lv);else if(!b.build){g.globalAlpha=.5+Math.sin(t*11+x)*.2;fire(g,x,y-17-(b.lv-1)*3,.45,t);g.globalAlpha=1}}
 }
+// Enregistre où chaque sprite de bâtiment est dessiné, pour le sélectionner sur ses pixels (pas seulement ses cases).
+const ALPHA=new Map();
+function alphaOf(im){let a=ALPHA.get(im);if(a!==undefined)return a;a=null;try{const w=im.naturalWidth||im.width,h=im.naturalHeight||im.height;if(w&&h){const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.drawImage(im,0,0);a={w,h,d:x.getImageData(0,0,w,h).data}}}catch(e){a=null}ALPHA.set(im,a);return a}
 function drawBld(g,b,t){
+  if(g!==OX2&&!b._ghost){const T0i=g.getTransform().invertSelf(),hits=[],di=g.drawImage;
+    g.drawImage=function(im,...a){try{let sx=0,sy=0,sw=im.naturalWidth||im.width,sh=im.naturalHeight||im.height,dx,dy,dw,dh;
+      if(a.length>=8)[sx,sy,sw,sh,dx,dy,dw,dh]=a;else{[dx,dy,dw,dh]=a;if(dw===undefined){dw=sw;dh=sh}}
+      if(dw&&dh)hits.push({im,inv:T0i.multiply(this.getTransform()).invertSelf(),sx,sy,sw,sh,dx,dy,dw,dh})}catch(e){}
+      return di.call(this,im,...a)};
+    try{drawBld0(g,b,t)}finally{delete g.drawImage}b._hit=hits;return}
+  drawBld0(g,b,t)}
+function hitSprite(b,w){if(!b._hit)return false;for(const h of b._hit){const p=h.inv.transformPoint(new DOMPoint(w.x,w.y)),fx=(p.x-h.dx)/h.dw,fy=(p.y-h.dy)/h.dh;if(fx<0||fy<0||fx>=1||fy>=1)continue;
+  const A=alphaOf(h.im);if(!A)return true;const ix=Math.floor(h.sx+fx*h.sw),iy=Math.floor(h.sy+fy*h.sh);if(ix>=0&&iy>=0&&ix<A.w&&iy<A.h&&A.d[(iy*A.w+ix)*4+3]>60)return true}return false}
+function drawBld0(g,b,t){
   const x=b.x,y=b.y,s=b.d.s;
   if(b.build){
     const p=1-b.build.left/b.build.total,base=y+s*TH/2+6,H=b.d.h||60;
@@ -1783,10 +1800,10 @@ function drawUnit(g,u,t){
   if(u.d.mount&&!u._m&&!okI(IMG['u_'+(u.d.base||u.t)+'_idle'])){drawMount(g,u,t);u._m=1;const yy=u.y;u.y-=11;const sv=u.t;g.save();g.translate(u.x,yy-11);g.scale(.78,.78);g.translate(-u.x,-(yy-11));drawUnit(g,{...u,t:'gardien',d:U.gardien,walk:0,work:0,_m:1,hero:false},t);g.restore();u.y=yy;u._m=0;lvBadge(g,u,-34);return}
   {const bt=okI(IMG['u_'+u.t+'_idle'])?u.t:(u.d.base||u.t),pose=u.atk>0?'atk':u.work>0?(Math.floor(u.work*3)%2?'atk':'idle'):u.walk>0?(Math.floor(u.walk/2.6)%2?'w2':'w1'):'idle',im=IMG['u_'+bt+'_'+pose],id=IMG['u_'+bt+'_idle'];
    if(im&&im.complete&&im.naturalWidth&&id.naturalWidth){const w=im.naturalWidth/2,h=im.naturalHeight/2,iw=id.naturalWidth/2;
-     if(!u._gh){g.fillStyle='#0008';g.beginPath();g.ellipse(u.x,u.y,8,3.4,0,0,7);g.fill()}
+     if(!u._gh)softSh(g,u.x,u.y+1,9,3.4,.42);
      g.save();g.translate(u.x,u.y);g.scale(u.face,1);g.drawImage(im,pose==='atk'?-iw/2:-w/2,-h+2.5,w,h);g.restore();if(!u._m&&!u._gh)lvBadge(g,u,-h+2);return}}
   const x=u.x,y=u.y,c=u.d.col,bob=Math.sin(u.walk)*1.2,f=u.face,lg=Math.sin(u.walk)*2.2;
-  g.fillStyle='#0007';g.beginPath();g.ellipse(x,y,7,3,0,0,7);g.fill();
+  softSh(g,x,y+1,9,3.4,.42);
   g.strokeStyle='#1d1712';g.lineWidth=2.2;g.beginPath();g.moveTo(x-2,y-6);g.lineTo(x-2+lg,y);g.moveTo(x+2,y-6);g.lineTo(x+2-lg,y);g.stroke();
   poly(g,[[x-5,y-6+bob],[x+5,y-6+bob],[x+3.5,y-16+bob],[x-3.5,y-16+bob]],c,'#000a');
   g.fillStyle='#d8b28c';g.beginPath();g.arc(x,y-19+bob,3.2,0,7);g.fill();
@@ -1817,7 +1834,7 @@ function drawUnit(g,u,t){
 }
 function lvBadge(g,u){if(u.worker||!u.lv||u.lv<2)return;const x=u.x+(u.d.mount?12:7),y=u.y-1;g.font='900 9px "Alegreya Sans",sans-serif';g.textAlign='center';g.textBaseline='alphabetic';g.lineWidth=2.6;g.strokeStyle='#120c08';g.strokeText(u.lv,x,y);g.fillStyle='#ffd27a';g.fillText(u.lv,x,y)}
 function drawMount(g,u,t){const x=u.x,y=u.y,f=u.face,l=Math.sin(u.walk*1.6)*3,hero=u.hero;
-  g.fillStyle='#0008';g.beginPath();g.ellipse(x,y,14,4.5,0,0,7);g.fill();
+  softSh(g,x,y+1,15,5,.42);
   g.strokeStyle='#2a1a10';g.lineWidth=2.4;g.beginPath();for(const [ox,ph] of [[-8,1],[-5,-1],[6,-1],[9,1]]){g.moveTo(x+ox*f,y-9);g.lineTo(x+ox*f+l*ph*.6,y)}g.stroke();
   g.fillStyle=hero?'#d8d0c0':'#6a4428';g.beginPath();g.ellipse(x,y-11,12,5.5,0,0,7);g.fill();
   if(u.t==='cavalier'||u.d.base==='cavalier'){g.fillStyle=hero?'#c8a24a':'#3a5a8a';g.fillRect(x-7,y-15,14,6)}
@@ -1832,13 +1849,14 @@ function drawMerchant(g,m,t){const x=m.x,y=m.y;g.fillStyle='#0007';g.beginPath()
 function drawCrows(g,m,t){const n=4,bx=m.x,by=m.y-26;g.fillStyle='#0006';g.beginPath();g.ellipse(m.x,m.y,10,3,0,0,7);g.fill();
   for(let k=0;k<n;k++){const a=t*3+k*1.7,x=bx+Math.cos(a)*9,y=by+Math.sin(a*1.3)*5,f=Math.sin(t*18+k)*.6;g.save();g.translate(x,y);g.scale(m.face,1);
     g.fillStyle=m.elite?ELITES[m.elite].col:'#14100e';g.beginPath();g.moveTo(-6,-3*f);g.quadraticCurveTo(-2,-1,0,0);g.quadraticCurveTo(2,-1,6,-3*f);g.lineTo(2,1);g.lineTo(-2,1);g.closePath();g.fill();g.fillStyle='#ff3a2a';g.fillRect(1.5,-1,1,1);g.restore()}}
+function softSh(g,x,y,rx,ry,a){g.save();g.translate(x,y);g.scale(1,ry/rx);const gr=g.createRadialGradient(0,0,0,0,0,rx);gr.addColorStop(0,`rgba(0,0,0,${a})`);gr.addColorStop(.6,`rgba(0,0,0,${a*.6})`);gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.beginPath();g.arc(0,0,rx,0,7);g.fill();g.restore()}
 function drawMon(g,m,t){
   const x=m.x,y=m.y,d=m.d;
   if(d.fly&&!okI(IMG['m_'+m.t+'_w1'])){drawCrows(g,m,t);return}const lift=d.fly?16+Math.sin(t*6+m.x)*2:0;
   if(d.shadow&&!m.vis){g.fillStyle='rgba(255,50,50,.55)';g.fillRect(x-3,y-m.h*.72,1.6,1.6);g.fillRect(x+1.5,y-m.h*.72,1.6,1.6);return}
   const sp=d.spr||m.t,sc=(d.sc||1)*(m.grow||1);
   const pose=m.atk>0?'atk':m.eating>0?'atk':(Math.floor(m.walk/2.4)%2?'w2':'w1'),im0=IMG['m_'+sp+'_'+pose],rim=IMG['m_'+sp+'_'+pose+'_r'],useR=rim&&rim.complete&&rim.naturalWidth,im=useR?rim:im0;
-  if(!m._gh){g.fillStyle='#0008';g.beginPath();g.ellipse(x,y,m.w*.38,m.w*.13+2,0,0,7);g.fill()}
+  if(!m._gh)softSh(g,x,y+1,m.w*.34+3,m.w*.11+2.5,.42);
   if(d.tint&&!m._gh){g.fillStyle=d.tint+'55';g.beginPath();g.ellipse(x,y,m.w*.46+3,m.w*.17+3,0,0,7);g.fill()}
   if(m.elite&&!m._gh){const c=ELITES[m.elite].col,p=.5+Math.sin(t*5)*.3;g.strokeStyle=c;g.globalAlpha=p;g.lineWidth=2;g.beginPath();g.ellipse(x,y,m.w*.5+4,m.w*.19+4,0,0,7);g.stroke();g.globalAlpha=1}
   if(!im||!im.complete||!im.naturalWidth)return;
@@ -1851,8 +1869,8 @@ function drawMon(g,m,t){
   g.drawImage(im,(pose==='atk'?-iw/2:-w/2)-pd*sc,-h+2-bob-pd*sc,w+pd*2*sc,h+pd*2*sc);
   g.restore();
   if(d.tint&&!m.elite){g.save();g.globalAlpha=.22;g.globalCompositeOperation='source-atop';g.restore()}
-  if(m.t==='cuirasse'){g.fillStyle='#a8b0b8';g.strokeStyle='#2a2e34';g.lineWidth=1;for(let k=0;k<3;k++){g.beginPath();g.ellipse(x+(k-1)*6*m.face,y-m.h*.62+k*3,4.5,3,0,0,7);g.fill();g.stroke()}}
-  if(m.t==='belier'){g.save();g.translate(x,y-m.h*.42);g.rotate(m.face*.12);g.fillStyle='#6a4428';g.fillRect(m.face>0?2:-30,-4,28,8);g.fillStyle='#3a2a1a';g.fillRect(m.face>0?26:-30,-5,4,10);g.restore()}
+  if(m.t==='cuirasse'&&!okI(IMG['m_cuirasse_w1'])){g.fillStyle='#a8b0b8';g.strokeStyle='#2a2e34';g.lineWidth=1;for(let k=0;k<3;k++){g.beginPath();g.ellipse(x+(k-1)*6*m.face,y-m.h*.62+k*3,4.5,3,0,0,7);g.fill();g.stroke()}}
+  if(m.t==='belier'&&!okI(IMG['m_belier_w1'])){g.save();g.translate(x,y-m.h*.42);g.rotate(m.face*.12);g.fillStyle='#6a4428';g.fillRect(m.face>0?2:-30,-4,28,8);g.fillStyle='#3a2a1a';g.fillRect(m.face>0?26:-30,-5,4,10);g.restore()}
   if(m.t==='peste'){for(let k=0;k<3;k++){const ph=(t*.8+k/3)%1;g.fillStyle=`rgba(176,224,64,${.6*(1-ph)})`;g.beginPath();g.arc(x+(k-1)*5,y-m.h-ph*12,2+ph*2,0,7);g.fill()}}
   if(m.t==='cracheur'){g.fillStyle='#8ad04a';g.beginPath();g.arc(x+m.face*m.w*.32,y-m.h*.55+Math.abs(Math.sin(t*4))*3,1.8,0,7);g.fill()}
   if(m.t==='matriarche'){g.strokeStyle='rgba(200,80,200,.5)';g.lineWidth=2;g.beginPath();g.ellipse(x,y-m.h*.5,m.w*.5,m.h*.55,0,0,7);g.stroke()}
@@ -1979,7 +1997,7 @@ function draw(t){
   if(tool&&hover){const a=anchorFor(tool,hover),ok=canPlace(tool,a.i,a.j)&&afford(B[tool].cost),s=B[tool].s;
     const GC=tool==='gate'?gateCells(a.i,a.j):null,cl=GC?GC.cells:[];if(!GC)for(let x=0;x<s;x++)for(let y=0;y<s;y++)cl.push([a.i+x,a.j+y]);for(const [ci,cj] of cl){const p=iso(ci,cj);diamond(g,p.x,p.y,1,ok?'rgba(120,200,110,.28)':'rgba(220,70,50,.32)')}
     const c=(s-1)/2,p=GC?{x:(iso(...cl[0]).x+iso(...cl[1]).x)/2,y:(iso(...cl[0]).y+iso(...cl[1]).y)/2}:iso(a.i+c,a.j+c),gh={t:tool,d:B[tool],x:p.x,y:p.y,i:a.i,j:a.j,hp:1,max:1,lv:1,cool:0,cells:GC?cl:null,al:GC?GC.al:undefined};
-    if(tool!=='wall'){g.globalAlpha=.6;B[tool].trap?drawTrap(g,gh,t):drawBld(g,gh,t);g.globalAlpha=1}
+    if(tool!=='wall'){g.globalAlpha=.6;B[tool].trap?drawTrap(g,gh,t):drawBld(g,Object.assign(gh,{_ghost:1}),t);g.globalAlpha=1}
     const l=B[tool].lv[0],rr=l.range||l.light||l.r;if(rr){g.strokeStyle='rgba(232,220,192,.35)';g.setLineDash([6,6]);g.beginPath();g.ellipse(p.x,p.y,rr,rr*.5,0,0,7);g.stroke();g.setLineDash([])}
   }
   const ents=[];
@@ -2096,7 +2114,7 @@ fresh();resize();addEventListener('resize',resize);try{new ResizeObserver(resize
 cam.z=minZ();clampCam();centerOn(S.keep.x,S.keep.y+40);
 let loaded=0;const all=Object.values(IMG);all.forEach(i=>{const done=()=>{if(++loaded===all.length){makeThumbs();renderCards();renderQueue()}};i.complete?done():(i.onload=done,i.onerror=done)});
 renderCards();hud();setCursor();setupStart();requestAnimationFrame(frame);
-window.__S=()=>S;window.__test={genHorde,M,openEntries,ELITES,endScreen,dawn,dayStart,loadGame,saveGame,showReport,openMerchant,SK,centerOn,cam,startNight,step,tryPlace,addUnit,startUpgrade,openInfo,order,pick:k=>pick(k),setPaused:v=>paused=v,selU:v=>{selU=v}};
+window.__S=()=>S;window.__test={spawnAt,genHorde,M,openEntries,ELITES,endScreen,dawn,dayStart,loadGame,saveGame,showReport,openMerchant,SK,centerOn,cam,startNight,step,tryPlace,addUnit,startUpgrade,openInfo,order,pick:k=>pick(k),setPaused:v=>paused=v,selU:v=>{selU=v}};
 }
 </script>
 </body>
