@@ -3,20 +3,21 @@
 Jeu navigateur de défense jour/nuit dans l'univers du JDR **Amertüme** (Big Budi Games, Valentin Drouet).
 Le jour : bâtir, recruter, améliorer. La nuit : la horde de la Charogne arrive par les chemins et marche sur le donjon. Objectif : tenir 25 nuits (`GOAL`), puis mode infini.
 
-Développé jusqu'ici dans Claude (artefact), version V9.5. Valentin pilote, génère les planches de sprites avec une autre IA, et Claude les intègre.
+Développé d'abord dans Claude (artefact, V9.5), puis dans ce dépôt (v0.9.x). Valentin pilote, génère les planches de sprites avec une autre IA, et Claude les intègre.
 
 ## Lancer / tester
 - Aucune dépendance, aucun build : tout est dans `index.html` (HTML + CSS + un seul `<script>`).
 - Servir en local : `python3 -m http.server 8765` puis `http://localhost:8765` (pas en `file://`, les images ne se chargent pas toutes).
 - Vérif syntaxe rapide : extraire le dernier `<script>` et `node -e "new Function(src)"`.
 - Tests visuels : Playwright + captures. Hooks dispo : `window.__S()` (état) et `window.__test` (`step`, `tryPlace`, `addUnit`, `startNight`, `dawn`, `openInfo`, `selU`, `setPaused`, `cam`, `centerOn`, `endScreen`, `saveGame`, `loadGame`…). Ex. : forcer la nuit avec `S.t=119.9` puis boucler `T.step(0.05)`.
+- Test de fumée : `node tools/smoke.js` (serveur lancé) enchaîne 6 jours/nuits, sauvegarde/recharge, échoue sur toute erreur JS.
 - **Toujours vérifier à l'écran (capture) avant de livrer** : Valentin juge sur le rendu.
 
 ## Arborescence
 - `index.html` : le jeu.
 - `img/bg.webp` carte 1672×941 (clairière, 4 entrées en coin) ; `img/ebouA|ebouB.webp` éboulis des entrées 3 et 4.
 - `img/wallA|B{,2,3}{,d}.webp` palissades par niveau (d = abîmée) · `img/gate2|gateD|gateX.webp` porte intacte/abîmée/détruite · `img/totem|totemOn.webp` totems d'entrée · `img/stone{A,B,P}` mur de pierre (+`d` fissuré, `x` ruine) · `img/keep1|keep2.webp` donjon niv. 1 / niv. 2+
-- `img/b/` bâtiments (dont `tower_archers|baliste|mage`, `merchant`) · `img/u/<id>_{idle,w1,w2,atk}.webp` unités/héros · `img/m/<id>_{w1,w2,atk,dead}.webp` + `_rim` monstres · `img/i/` icônes 128² · `img/fx/<nom>.webp` effets (bande de 6 frames 128², dont poison, rock, boom, heal, lvlup, douse).
+- `img/b/` bâtiments (dont `tower_archers|baliste|mage`, `merchant`) · `img/u/<id>_{idle,w1,w2,atk}.webp` unités/héros · `img/m/<id>_{w1,w2,atk,dead}.webp` + `_rim` monstres · `img/i/` icônes 128² (dont `os` = os de charogne) · `img/fx/<nom>.webp` effets (bande de 6 frames 128², dont poison, rock, boom, heal, lvlup, douse).
 - `tools/sprites.py` : découpe des planches (voir plus bas).
 
 ## Architecture du code (index.html)
@@ -33,9 +34,17 @@ Développé jusqu'ici dans Claude (artefact), version V9.5. Valentin pilote, gé
 - **Terrain** : `CELLSET` clairière constructible, `CORR` couloirs d'entrée (murs/portes/pièges seulement, `validFor`) ; hors des deux, la horde ne passe pas (`walkM`, coût 1e6 dans `navEnsure`, distances `dij` en Float64 sinon boucle infinie).
 - **Siège** : `SIEGE()` multiplie les dégâts des monstres contre les bâtiments ; DEF bâtiment = −8 %/pt (max 60 %) ; monstres coincés (`m.stuck`) frappent la barricade voisine. `SV` armes de rempart (mur de pierre niv. 3), `VARS` = spécialisations par type, `sgate` porte fortifiée (`GATE(t)`).
 - **Ordres** : `u.mv` = ordre du joueur en cours (déplacement/patrouille/garde), l'unité ignore les ennemis jusqu'à destination (14 s max). Poursuite tenue à 420 px du poste.
+- **Monstres v0.9.6+** : variantes dessinées avec les sprites existants (`spr`, `sc`, `filt` = filtre CSS) : vautour, frondeur, chaman, amas/grouillon, boss `chancre` (n10), `merec` (n15, volant), `roib` (n20), `charmere` (n25, 3 phases dans `monSpecial`). Rotation `bossFor(n)`. Affixes d'élite combinables `m.aff` (`hasA`), `rollAff`. `monSpecial/monSpd/monDmg/monDeath`. Volants : seuls tireurs (portée ≥ 60) et tours les touchent. `nearestP` = cible prioritaire (chamans).
+- **Doubles** : `roll()` renvoie `dbl` ; `onDbl(u,m)` = effet par type (`DBL`).
+- **Unités v0.9.7** : `etendard`/`tambour` (auras dans la boucle des auras, `AURA_R`), `chien` + bâtiment `kennel` (dessinés en procédural : `drawDog`, `drawKennel`, en attendant des sprites). Talents `TAL[type][3|5]` → `u.tal`, `hasT(u,k)`, appliqués dans `us()` / `meleeHit()` / `impact()`. Vétérans `makeVet` (niv. 4, `u.vet`, `u.trait`, `VTR`). Ultime des héros `u.ult` (0–100), `useUlt`, `u.furyT`.
+- **Économie v0.9.7** : rations à l'aube (`rations()`, `S.famine`), os `S.res.os` (`boneDrop`, Ossuaire `BONE`/`S.bone` à l'Armurerie), expéditions `EXPD`/`S.exps`/`u.exp` (`expOpen`, `expStep`), reliques `RELICS` (`CFG.relics` → `S.relics`, `hasR`, emplacements `relicSlots`), défis de départ `MODS` (`CFG.mods` → `S.mods`, `hasMod`, multiplicateur de score).
+- **Météo / traces** : `S.wx` (`rollWx`, `WX`, `wxSpd`, `wxRng`) ; `decal()`/`drawDecals()` (sang, brûlure, terre) effacées à l'aube ; cadavres gardés toute la nuit.
+- **Son** : WebAudio synthétisé, aucun fichier : `sfx(nom,x,y)` (table `SFX`, anti-rafale `SFXGAP`), musique générative `musTick()` ; volumes `CFG.mus`, `CFG.sfx`, `CFG.mute`.
+- **Journal / stats** : `jlog(texte,type)` → `S.log`, tableau de chasse `jKill` → `S.jk[jour]` ; historique `S.hist` (graphiques `chartSvg`), palmarès `S.fame` ; stats globales `metaG().g` via `PEND` + `metaFlush()`. Rapport de bug `bugReport()` (erreurs capturées dans `ERRS`).
+- **Perf** : `gAt(i,j)` = cache numérique de `S.grid` (à utiliser dans les boucles chaudes, invalidé par `navVer`) ; séparation des monstres par grille spatiale ; listes `visM`/`liveU` calculées une fois par pas.
 - **Boucle** : `step(dt)` logique · `draw(t)` rendu canvas (tri par profondeur, `outlined()` surbrillance, `ghostLine()` contour des unités cachées derrière un bâtiment, `occBy()`) · `refresh()` HUD · `hud()` plaque jour/nuit.
 - **VFX** : `fxAdd(nom,x,y,{f0,f1,dur,sz,rot,flip,add})`, `fxFrame()`, `fire()` (flammes animées).
-- **UI** : barre du bas `renderCards()` (onglets b, d, p, u, w, h = Héros), cadre d'unité compact `#info.uf` (3 lignes, à droite des ressources), fenêtres bâtiment `bldModal`, `dialog()/closeDlg()` (clic à côté ferme), rapport de l'aube `showReport()` (auto-fermeture 10 s), accueil `hmRender()`, menu (Progression, Arbre, Hauts faits, Bestiaire, Encyclopédie, Règles, Paramètres, Sauvegarder, Recharger, Recommencer, Accueil).
+- **UI** : barre du bas `renderCards()` (onglets b, d, p, u, w, h = Héros), cadre d'unité compact `#info.uf` (3 lignes, à droite des ressources), fenêtres bâtiment `bldModal`, `dialog()/closeDlg()` (clic à côté ferme), rapport de l'aube `showReport()` (auto-fermeture 10 s), accueil `hmRender()`, menu (Progression, Arbre, Hauts faits, Bestiaire, Encyclopédie, Journal, Statistiques, Règles, Paramètres, Sauvegarder, Recharger, Recommencer, Signaler un bug, Accueil). Prévision de la nuit `fcHtml()/fcTip()` et barre de boss `bossHtml()` dans la plaque.
 - **Sauvegarde** : `saveGame(k)/loadGame(o)` en localStorage (`lamuline-save` auto à chaque aube, `lamuline-slot1..3`), méta inter-parties `lamuline-meta` (kills, unité phare, hauts faits, bestiaire vu), scores `lamuline-scores`, réglages `lamuline-cfg`.
 
 ## Pipeline sprites
@@ -50,7 +59,8 @@ Bloc de style à mettre en tête des prompts de planches :
 ## État et pistes ouvertes
 - Fait : 60 améliorations de la V5, carte 4 entrées, barricades étanches, patrouilles, palissade à pieux, Hall des Charognards (traque par espèce), Bestiaire, Porteur d'eau, accueil/sauvegardes/hauts faits, VFX, tous les sprites.
 - À surveiller : équilibrage (Valentin trouvait le jeu trop facile avant la V6), lisibilité mobile (< 900 px le cadre d'unité repasse en panneau bas), perfs avec beaucoup de monstres (champs de flux recalculés quand la grille change).
-- Idées non faites : sons/musique, carte plus nette en 3344×1882 si Valentin la fournit, découpage de `index.html` en modules si le fichier devient ingérable.
+- Idées non faites : carte plus nette en 3344×1882 si Valentin la fournit, découpage de `index.html` en modules si le fichier devient ingérable, intégration CI du test de fumée.
+- Sprites manquants (dessin provisoire en attendant) : chien de guerre, porte-étendard, tambour, chenil, monstres v0.9.6 (variantes teintées), porte fortifiée, armes de rempart, mur de pierre raccordable.
 
 ## Façon de travailler avec Valentin
 - Réponses en **français**, courtes et concrètes ; il envoie souvent plusieurs retours d'affilée en cours de travail : les traiter tous.
