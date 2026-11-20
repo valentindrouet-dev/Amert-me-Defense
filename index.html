@@ -607,7 +607,7 @@ function prepNext(){S.nextNight=pickNight(S.day);S.nextHorde=genHorde(S.day,S.ne
 // Variantes dessinées à partir des sprites existants (filt = filtre de couleur) en attendant leurs propres planches.
 Object.assign(M,{
   vautour:{n:'Vautour charognard',hp:62,def:1,sp:44,dice:'WR',cd:1.5,r:12,fly:1,bld:1.5,spr:'corbeaux',sc:1.45,filt:'sepia(.7) hue-rotate(-15deg) brightness(.95)',d:'Grand charognard ailé : survole les murs et s\'attaque aux bâtiments. Seuls les tireurs et les tours l\'atteignent.'},
-  frondeur:{n:'Frondeur d\'os',hp:44,def:1,sp:26,dice:'RR',cd:2.6,r:9,range:215,bone:1,spr:'cracheur',sc:1.08,filt:'hue-rotate(70deg) saturate(.55) brightness(1.15)',d:'Lance des os aiguisés de très loin sur vos tours et vos remparts armés.'},
+  frondeur:{n:'Frondeur d\'os',hp:44,def:1,sp:26,dice:'RR',cd:2.6,r:9,range:185,bone:1,spr:'cracheur',sc:1.08,filt:'hue-rotate(70deg) saturate(.55) brightness(1.15)',d:'Lance des os aiguisés de très loin sur vos tours et vos remparts armés.'},
   chaman:{n:'Chaman de la Charogne',hp:58,def:1,sp:27,dice:'W',cd:1.6,r:10,shaman:1,spr:'necro',sc:1.15,filt:'hue-rotate(210deg) saturate(1.5)',d:'Soigne la horde autour de lui et la rend furieuse. Vos tireurs le visent en priorité.'},
   amas:{n:'Amas grouillant',hp:120,def:1,sp:20,dice:'WW',cd:1.4,r:13,split:3,spr:'necro',sc:1.45,filt:'hue-rotate(-45deg) saturate(1.4) brightness(.85)',d:'Se divise en trois grouillons en mourant.'},
   grouillon:{n:'Grouillon',hp:15,def:0,sp:50,dice:'W',cd:.8,r:6,shy:1,spr:'charo',sc:.62,filt:'hue-rotate(-45deg) saturate(1.4)',d:'Fragment vivant d\'un amas grouillant. Rapide, fragile, fuit la lumière.'},
@@ -620,10 +620,10 @@ for(const k of ['rodeur','corbeaux','ombre'])M[k].shy=1;
 Object.assign(XPV,{vautour:14,frondeur:12,chaman:18,amas:16,grouillon:2,chancre:200,merec:200,roib:260,charmere:500});
 Object.assign(MCOST,{vautour:2.2,frondeur:1.8,chaman:2.4,amas:2.6});
 HTABLES.push(
-  {n:'Vautours',t:7,g:[['vautour',2,3],['corbeaux',2,3]]},
-  {n:'Frondeurs',t:7,g:[['frondeur',2,3],['charo',3,4]]},
-  {n:'Chaman et sa meute',t:9,g:[['chaman',1,1],['charo',4,6],['rodeur',2,3]]},
-  {n:'Amas grouillants',t:9,g:[['amas',2,3]]},
+  {n:'Vautours',t:9,g:[['vautour',2,3],['corbeaux',2,3]]},
+  {n:'Frondeurs',t:8,g:[['frondeur',2,3],['charo',3,4]]},
+  {n:'Chaman et sa meute',t:11,g:[['chaman',1,1],['charo',4,6],['rodeur',2,3]]},
+  {n:'Amas grouillants',t:10,g:[['amas',2,3]]},
   {n:'Rituel',t:13,g:[['chaman',2,2],['cuirasse',2,2],['brute',1,2]]},
   {n:'Ciel noir',t:14,g:[['vautour',3,4],['corbeaux',4,6]]},
   {n:'Batterie d\'os',t:16,g:[['frondeur',3,4],['cuirasse',2,2],['belier',1,1]]}
@@ -631,7 +631,7 @@ HTABLES.push(
 Object.assign(ELITES,{explosif:{n:'explosif',col:'#ffb04a'},blinde:{n:'blindé',col:'#b8c4d0'},vampire:{n:'vampirique',col:'#c0304a'}});
 const hasA=(m,a)=>!!(m.aff&&m.aff.includes(a));
 function rollAff(n){const ks=Object.keys(ELITES),pick=()=>ks[Math.floor(Math.random()*ks.length)],o=[pick()];
-  if(n>=10&&Math.random()<.35){const b=pick();if(!o.includes(b))o.push(b)}if(n>=18&&Math.random()<.3){const c=pick();if(!o.includes(c))o.push(c)}return o}
+  if(n>=13&&Math.random()<.3){const b=pick();if(!o.includes(b))o.push(b)}if(n>=20&&Math.random()<.25){const c=pick();if(!o.includes(c))o.push(c)}return o}
 const BOSSR=['colosse','chancre','merec','roib'];
 function bossFor(n,type){if(n>=GOAL&&n%GOAL===0)return'charmere';if(n%8===0)return'matriarche';if(n%5===0)return BOSSR[(n/5-1)%4];return type==='calme'?'colosse':null}
 // tireurs et tours visent d'abord les chamans (distance comptée de moitié)
@@ -801,7 +801,7 @@ function us(u){const d=u.d,e=d.hero?eqB(''):eqB(u.t),lv=(u.lv||1)-1,a=u._a||{},c
   if(u.tal){if(T_('def2'))def+=2;if(T_('def3'))def+=3;if(T_('hp40')){hp*=1.4;if(d.dog)def+=1}if(T_('hp60'))hp*=1.6;if(T_('taunt'))hp*=1.3;if(T_('armor')){def+=2;hp*=1.3}
     if(T_('rng40'))range+=40;if(T_('rng50'))range+=50;if(T_('diceR'))dice+='R';if(T_('diceB'))dice+='B';if(T_('cd30'))cd*=.7;if(T_('cd25'))cd*=.75;if(T_('aoe20'))aoe+=20;if(T_('aoe30'))aoe+=30;if(T_('mul50'))mul*=1.5;if(T_('spd25'))sp*=1.25}
   if(u.trait){const t=u.trait;if(t==='fer')hp*=1.15;else if(t==='faucon')range*=1.12;else if(t==='rouge')mul*=1.12;else if(t==='leger')sp*=1.15;else if(t==='froid')cd*=.9;else if(t==='mort'&&u.hp<u.max/3)def+=2}
-  if(gd){if(hasB('chitine'))def+=1;if(hasR('corne'))def+=1;if(S.famine)mul*=.85}
+  if(gd){if(hasB('chitine'))def+=1;if(hasR('corne'))def+=1;if(S.famine)mul*=.9}
   if((d.dog||d.mount)&&hasB('crocs'))mul*=1.2;if(d.dog)hp*=1+.25*Math.max(0,kennelLv()-1);
   if(u.furyT>c)mul*=1.5;sp*=wxSpd();if(range>=60)range*=wxRng();
   return{hp:Math.round(hp),def,dice,range:Math.round(range),cd,aoe,sp,mul}}
@@ -831,7 +831,7 @@ function roll(spec,def,mul){
 }
 const dice=s=>[...s].map(k=>`<img class="ic dc" alt="" src="img/i/d${k}.webp">`).join('');
 function monDef(m){if(m._def!==undefined)return m._def;return calcDef(m)}
-function calcDef(m){let d=m.d.def+(hasA(m,'blinde')?3:0)-(m.d.final&&m.phase===3?m.d.def:0),red=0;for(const b of S.blds)if((b.t==='brazier'||b.t==='beacon')&&ready(b)&&Math.hypot(b.x-m.x,b.y-m.y)<L(b).light*(S.night.type==='brume'&&S.phase==='night'?.55:1)*(hasR('lanterne')?1.3:1))red=Math.max(red,L(b).defm);for(const u of S.units)if(u.d.priest&&!u.hidden&&Math.hypot(u.x-m.x,u.y-m.y)<120)red=Math.max(red,1);return Math.max(0,d-red)}
+function calcDef(m){let d=m.d.def+(hasA(m,'blinde')?2:0)-(m.d.final&&m.phase===3?m.d.def:0),red=0;for(const b of S.blds)if((b.t==='brazier'||b.t==='beacon')&&ready(b)&&Math.hypot(b.x-m.x,b.y-m.y)<L(b).light*(S.night.type==='brume'&&S.phase==='night'?.55:1)*(hasR('lanterne')?1.3:1))red=Math.max(red,L(b).defm);for(const u of S.units)if(u.d.priest&&!u.hidden&&Math.hypot(u.x-m.x,u.y-m.y)<120)red=Math.max(red,1);return Math.max(0,d-red)}
 function hurt(e,r,col,src){
   if(src&&M[e.t]){e.ls=src;if(src.d)e.last=src}
   if(r.fail){float(e.x,e.y-(e.h||26),'Échec','#ddd',0,'fail');return 0}
@@ -876,7 +876,7 @@ function dawn(burned){
   try{const r=+localStorage.getItem('lamuline-best')||0;if(S.day>r)localStorage.setItem('lamuline-best',S.day)}catch(e){}
   const bonus={bois:10+4*S.day,pierre:6+3*S.day,vivres:8+3*S.day};
   for(const k in bonus)S.res[k]+=bonus[k];
-  const ra=rations(),fam=S.res.vivres<ra;S.res.vivres=Math.max(0,S.res.vivres-ra);S.famine=fam;if(fam)jlog('Famine : les rations manquent, la garde frappe 15 % moins fort cette nuit.','fall');
+  const ra=rations(),fam=S.res.vivres<ra;S.res.vivres=Math.max(0,S.res.vivres-ra);S.famine=fam;if(fam)jlog('Famine : les rations manquent, la garde frappe 10 % moins fort cette nuit.','fall');
   S.rubble=[];for(const c of S.corpses)c.dis=0;for(const d of (S.decals||[]))d.fade=0;S.clouds=[];
   sfx('bell');histPush();metaFlush({nights:1});jlog('Aube : '+S.ns.kills+' créatures abattues, '+S.ns.lostB+' bâtiment(s) et '+S.ns.lostU+' unité(s) perdus.','dawn');
   const R={day:S.day,type:S.night.type,kills:S.ns.kills,lostB:S.ns.lostB,lostU:S.ns.lostU,burned:burned||0,bonus,ev:[],ra,fam};
@@ -1032,7 +1032,7 @@ function step(dt){
       else{
       const stc=u.stance||'pursue',lim=stc==='zone'||u.guardB?230:u.patrol?1e9:420;
       let m=null;
-      if(sU.dice&&S.mons.length){const pool=[];for(const m of visM)if(m._inC&&Math.abs(m.x-anc.x)<lim&&Math.hypot(m.x-anc.x,m.y-anc.y)<lim&&(!u.patrol||inPat(u.patrol,m,90)||Math.hypot(m.x-k.x,m.y-k.y)<170)&&!(m.d.fly&&sU.range<60))pool.push(m);m=nearestP(pool,u.x,u.y,1e9);
+      if(sU.dice&&S.mons.length){const pool=[];for(const m of visM)if(m._inC&&Math.abs(m.x-anc.x)<lim&&Math.hypot(m.x-anc.x,m.y-anc.y)<lim&&(!u.patrol||inPat(u.patrol,m,90)||Math.hypot(m.x-k.x,m.y-k.y)<170)&&!(m.d.fly&&m.t!=='corbeaux'&&sU.range<60))pool.push(m);m=nearestP(pool,u.x,u.y,1e9);
         if(m&&stc==='hold'&&Math.hypot(m.x-u.x,m.y-u.y)>sU.range+(m.d.r||8)+4)m=null}
       if(m){
         const dist=Math.hypot(m.x-u.x,m.y-u.y),reach=sU.range+(m.d.r||8);
@@ -1538,13 +1538,13 @@ function expStep(dt){if(!S.exps||!S.exps.length)return;for(const E of S.exps)E.l
     const msg='Retour d\'expédition ('+D.n+') : '+costTxt({...rw,...(bn||{})})+'.'+(lost.length?' Perdu'+(lost.length>1?'s':'')+' : '+lost.join(', ')+'.':'')+(hurtN.length?' Blessé'+(hurtN.length>1?'s':'')+' : '+hurtN.join(', ')+'.':'')+extra;
     toast(msg);jlog(msg,lost.length?'fall':'info');sfx('gold')}renderQueue();refresh()}
 // Rations : à l'aube, chaque habitant mange.
-function rations(){let n=0;for(const u of S.units){if(u.temp)continue;n+=u.hero?3:u.worker?1:2}return n}
+function rations(){if(S.day<4)return 0;let n=0;for(const u of S.units){if(u.temp||u.worker)continue;n+=u.hero?2:1}return n}
 // Météo : tirée à chaque aube et à chaque tombée de la nuit selon la saison.
-const WX={clair:{n:'Temps clair',d:''},pluie:{n:'Pluie',d:'Les incendies prennent mal.'},neige:{n:'Neige',d:'Tout le monde avance 12 % moins vite.'},brouillard:{n:'Brouillard',d:'Tireurs et tours : −20 % de portée.'}};
+const WX={clair:{n:'Temps clair',d:''},pluie:{n:'Pluie',d:'Les incendies prennent mal.'},neige:{n:'Neige',d:'Tout le monde avance 12 % moins vite.'},brouillard:{n:'Brouillard',d:'Tireurs et tours : −10 % de portée.'}};
 function rollWx(){const s=season().n,r=Math.random();if(S.night&&S.night.type==='orage'&&S.phase==='night')return'pluie';
   if(s==='Hiver')return r<.6?'neige':r<.75?'brouillard':'clair';if(s==='Automne')return r<.35?'brouillard':r<.6?'pluie':'clair';if(s==='Printemps')return r<.35?'pluie':r<.5?'brouillard':'clair';return r<.12?'pluie':r<.2?'brouillard':'clair'}
 function setWx(w){S.wx=w;if(w==='pluie')S.rain=Math.max(S.rain||0,.7);else if(w!=='clair'&&!S.storm)S.rain=0}
-const wxRng=()=>S.wx==='brouillard'?.8:1,wxSpd=()=>S.wx==='neige'?.88:1;
+const wxRng=()=>S.wx==='brouillard'?.9:1,wxSpd=()=>S.wx==='neige'?.88:1;
 // Traces au sol : sang, brûlures, terre retournée ; elles s'effacent à l'aube.
 function decal(x,y,k,r){S.decals=S.decals||[];S.decals.push({x,y,k,r:r||1,rot:Math.random()*6.28,s:Math.random()*1000,life:0});if(S.decals.length>260)S.decals.splice(0,S.decals.length-260)}
 function drawDecals(g){if(!S.decals)return;for(const d of S.decals){const a=d.fade!==undefined?Math.max(0,1-d.fade/3):1;if(a<=0)continue;g.save();g.translate(d.x,d.y);g.scale(1,.5);g.rotate(d.rot);g.globalAlpha=a;
@@ -1647,7 +1647,7 @@ function resTip(){
     rows.push(`<div class="rt"><div class="rh">${ic(r)}<b class="r-${r}">${NM[r]}</b><span class="r-${r}">+${tot.toFixed(1)} / s</span></div>${src.map(([n,v])=>`<div class="rs"><span>${n}</span><span>+${v.toFixed(1)}</span></div>`).join('')||'<div class="rs"><span>Aucune production</span></div>'}</div>`);
   }
   const g=S.units.filter(u=>!u.worker).length,w=S.units.length-g;
-  rows.push(`<div class="rt"><div class="rh">${ic('vivres')}<b>Rations à l'aube</b><span style="color:#ff9a7a">−${rations()}</span></div><div class="rs"><span>2 par garde, 1 par villageois, 3 par héros</span></div>${S.famine?'<div class="rs"><span style="color:#ff8a6a">Famine en cours : −15 % de dégâts</span></div>':''}</div>`);
+  rows.push(`<div class="rt"><div class="rh">${ic('vivres')}<b>Rations à l'aube</b><span style="color:#ff9a7a">−${rations()}</span></div><div class="rs"><span>1 par garde, 2 par héros, dès le jour 4 (villageois exemptés)</span></div>${S.famine?'<div class="rs"><span style="color:#ff8a6a">Famine en cours : −10 % de dégâts</span></div>':''}</div>`);
   rows.push(`<div class="rt"><div class="rh">${ic('pop')}<b>Habitants</b><span>${popUsed()} / ${popCap()}</span></div><div class="rs"><span>Garde</span><span>${g}</span></div><div class="rs"><span>Villageois</span><span>${w}</span></div>${S.queue.length?`<div class="rs"><span>En recrutement</span><span>${S.queue.length}</span></div>`:''}</div>`);
   return`<div class="tt-h"><b>Économie</b></div><div class="tt-d">Par seconde, à vitesse ×1. La production s'arrête la nuit.</div>`+rows.join('');
 }
@@ -1819,7 +1819,7 @@ function showReport(R){const NT=NIGHTS[R.next],NC={normal:'#3a4a7a',sang:'#8a1f1
   h+=`<div class="rp-tiles">${tile('skull',R.kills,'abattues','#c0392b')}${tile('ruin',R.lostB,'bâtiments perdus',R.lostB?'#d0605a':'#5a7a4a')}${tile('hp',R.lostU,'unités tombées',R.lostU?'#d0605a':'#5a7a4a')}${tile('lvlup',R.ups,'niveaux gagnés','#c8a03a')}</div>`;
   if(R.best)h+=`<div class="rp-best"><img class="rpp" alt="" src="${pic(R.best.t)}"><div><small>${ic('crown')}Héros de la nuit</small><b>${R.best.n}</b><span>${ic('skull')}${R.best.k} abattue${R.best.k>1?'s':''} · ${ic('lvl')}niveau ${R.best.lv}</span></div></div>`;
   h+=`<div class="rp-loot"><small>${ic('loot')}Butin de l'aube</small><div>${Object.entries(R.bonus).map(([k,v])=>`<span class="r-${k}">${ic(k)}+${v}</span>`).join('')}${R.ra?`<span class="r-vivres" title="Rations : 2 par garde, 1 par villageois, 3 par héros" style="color:#ff9a7a">${ic('vivres')}−${R.ra} rations</span>`:''}</div></div>`;
-  if(R.fam)h+=`<div class="rp-band" style="--c:#8a3a1a">${ic('vivres')}<b>Famine : la garde frappe 15 % moins fort cette nuit</b><em>Bâtissez des fermes</em></div>`;
+  if(R.fam)h+=`<div class="rp-band" style="--c:#8a3a1a">${ic('vivres')}<b>Famine : la garde frappe 10 % moins fort cette nuit</b><em>Bâtissez des fermes</em></div>`;
   if(R.chal)h+=`<div class="rp-band" style="--c:${R.chal.ok?'#4a8a3a':'#7a3a2a'}">${ic(R.chal.ok?'trophy':'fail')}<b>Défi ${R.chal.ok?'réussi':'échoué'} : ${R.chal.n}</b>${R.chal.ok?`<em>${Object.entries(R.chal.rew).map(([k,v])=>`${ic(k==='cendre'?'crit':k)}+${v}`).join(' ')}</em>`:''}</div>`;
   if(R.ev.length)h+=`<div class="rp-ev">${R.ev.map(x=>`<div>${ic(/réfugi|rejoint|mercenaire|ramène/.test(x)?'pop':/éboulis/.test(x)?'out':/route/.test(x)?'flag':'flags')}<span>${x}</span></div>`).join('')}</div>`;
   if(R.season)h+=`<div class="rp-band" style="--c:#6a7a3a">${ic({Printemps:'spring','Été':'summer',Automne:'autumn',Hiver:'winter'}[R.season]||'sun')}<b>Nouvelle saison : ${R.season}</b><em>${seasonTxt()}</em></div>`;
@@ -1863,9 +1863,10 @@ const ACH=[
 function metaTick(nightKills){const m=metaG();m.ach=m.ach||{};m.kills=(m.kills||0)+(nightKills||0);m.best=Math.max(m.best||0,S.day);
   for(const u of S.units)if(!u.worker&&(u.kills||0)>((m.star&&m.star.k)||0))m.star={t:u.t,n:u.d.n,k:u.kills,lv:u.lv,day:S.day,hero:!!u.hero};
   for(const a of ACH)if(!m.ach[a.id]&&a.f(S,m)){m.ach[a.id]=Date.now();toast('Haut fait débloqué : '+a.n+' !')}metaS(m)}
-const VERSION='0.9.7';
+const VERSION='0.9.8';
 document.querySelectorAll('[data-ver]').forEach(e=>e.textContent='v'+VERSION);document.title='Les Nuits de Lamuline · v'+VERSION;
 const NOTES=[
+  ['v0.9.8','Difficulté adoucie',['Rations : à partir du jour 4 seulement, 1 par garde et 2 par héros, villageois exemptés ; la famine ne coûte plus que 10 % de dégâts','Les corbeaux redeviennent attaquables au corps à corps (vautours et Mère-Corneille restent hors de portée)','Nouveaux adversaires plus tardifs : frondeurs nuit 8, vautours nuit 9, amas nuit 10, chamans nuit 11 ; portée des frondeurs réduite','Élites à plusieurs affixes dès la nuit 13 (au lieu de 10) ; blindé : +2 DEF au lieu de +3','Brouillard : −10 % de portée au lieu de −20 %','Zone de chasse des gardes rétablie comme en v0.9.5']],
   ['v0.9.7','Talents, vétérans, expéditions et météo',['Talents : au niveau 3 puis 5, chaque garde choisit entre deux branches (étoile dorée quand un choix attend)','Vétérans : au niveau 4, une recrue reçoit un nom et un trait (Cœur-de-Fer, Main-Rouge, Trompe-la-Mort…)','Nouvelles unités : Porte-étendard (+DEF, +dégâts, plus de fuite autour de lui), Tambour de guerre (vitesse et cadence), Chien de guerre (rapide, flaire les Ombres, traque les Fouisseurs) et le Chenil','Ultime des héros : une jauge se remplit en abattant des créatures ; trois fois sa compétence, +50 % de dégâts, invulnérable 10 s','Expéditions depuis le Donjon : forêt, ruines, hameau ou repaire, contre bois, pierre, vivres, os, avec un risque','Rations : chaque habitant mange à l\'aube ; sans vivres, la garde frappe moins fort','Os de charogne ramassés sur la horde, façonnés à l\'Ossuaire de l\'Armurerie (six améliorations permanentes)','Reliques débloquées d\'une partie à l\'autre, à équiper sur l\'accueil (1 à 3 emplacements)','Météo selon la saison : pluie (incendies difficiles), neige (tout ralentit), brouillard (portée réduite), feuilles d\'automne','Traces au sol : sang, brûlures, terre retournée ; les cadavres restent jusqu\'à l\'aube puis s\'effacent','Arrivée de la horde : brume rouge aux entrées, totems embrasés, voile rouge à la tombée de la nuit','Bâtiments abîmés assombris, braises sous 30 % de PV ; chantiers qui fument, bâtiments qui « poussent » à l\'achèvement','Portraits : blessé, à l\'agonie, en furie, vétéran','Le cadre d\'unité affiche de nouveau les boutons (compétence des héros, talents, renvoi)']],
   ['v0.9.6','Sons, journal et nouveaux adversaires',['Sons et musique synthétisés (réglages : volume de la musique, des effets, couper le son)','Journal de la nuit : événements et tableau de chasse (qui a tué quoi), depuis le menu ou le rapport de l\'aube','Fin de partie : courbes des ressources, créatures abattues par nuit, palmarès des unités','Statistiques sur toutes les parties (accueil et menu)','Prévision de la prochaine nuit sur la plaque : créatures, élites, menace estimée ; survol pour le détail par front','Barre de vie des boss','Accueil illustré, défis de départ (Horde vorace, Disette, Bois tendre, Nuit des élites, Sans répit, Nuits longues) qui multiplient le score','Menu : Signaler un bug (rapport à copier ou télécharger, avec sauvegarde)','Nouveaux monstres : Vautour charognard (volant, vise les bâtiments), Frondeur d\'os (tire sur les tours), Chaman (soigne et rend furieux), Amas grouillant (se divise)','Les volants ne sont plus touchés au corps à corps : il faut des tireurs ou des tours','Élites : affixes combinables, nouveaux Explosif, Blindé, Vampirique','Un boss toutes les 5 nuits : Colosse, le Chancre, la Mère-Corneille, le Roi-Bélier ; la Matriarche toutes les 8 nuits','Nuit 25 : la Charogne-Mère, boss final en trois phases','Doubles : deux dés identiques déclenchent un effet propre à l\'unité (assommer, repousser, saignement…)','Rôdeurs, corbeaux, ombres et grouillons ralentissent dans la lumière','Moteur plus rapide avec de grosses hordes']],
   ['v0.9.5','Remparts et siège',['Objectif : tenir 25 nuits, puis mode infini','La horde ne passe plus par la forêt : un mur qui touche le bord du terrain ferme le passage ; murs, portes et pièges se posent aussi sur les chemins d\'entrée','Les monstres frappent les bâtiments plus fort (×1,5, +8 % par nuit), pas les unités ; la DEF d\'un bâtiment réduit les dégâts au lieu de les annuler','Toute la cohue bloquée devant une barricade la frappe','Murs de pierre posés en glissant, comme les palissades','Porte fortifiée (pierre) à poser sur un mur','Armes de rempart au niveau 3 du mur de pierre : arbalète ou chaudron de poix','Cadre d\'unité plus grand, sans les postures']],
