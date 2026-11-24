@@ -310,7 +310,7 @@ body.paused #cv{filter:grayscale(1) brightness(.72) contrast(1.05);transition:fi
       <div class="go-row"><button class="btn hot" id="bGo"><img class="ic" alt="" src="img/i/fire.webp">Allumer les feux</button><button class="btn" id="bRules"><img class="ic" alt="" src="img/i/menu.webp">Comment jouer</button></div></div>
     <div class="hm-sec hm-solo"><h4><img class="ic" alt="" src="img/i/crit.webp">Solo Defender</h4>
       <div class="solo-row"><img alt="" src="img/u/gardien_atk.webp"><p>Un seul Gardien, sans bâtir ni recruter. Cliquez sur la carte pour le déplacer, sur une créature pour la cibler : il frappe tout seul ce qui l'approche. Tenez le plus de nuits possible. <span id="soloRec"></span></p></div>
-      <div class="diffs solo-pick" id="soloPick"><button class="btn" data-skin=""><b><img class="ic" alt="" src="img/u/gardien_idle.webp">Gardien</b><small>Épée et bouclier</small></button><button class="btn" data-skin="lezard"><b><img class="ic" alt="" src="img/a/lezard/00.webp">Démon-lézard</b><small>Nouveau · animations complètes</small></button></div>
+      <div class="diffs solo-pick" id="soloPick"><button class="btn" data-skin=""><b><img class="ic" alt="" src="img/u/gardien_idle.webp">Gardien</b><small>Épée et bouclier</small></button><button class="btn" data-skin="lezard"><b><img class="ic" alt="" src="img/a/lezard/b00.webp">Démon-lézard</b><small>Nouveau · animations complètes</small></button></div>
       <button class="btn hot" id="bSolo"><img class="ic" alt="" src="img/i/crit.webp">Lancer Solo Defender</button></div>
     <div class="hm-sec"><h4><img class="ic" alt="" src="img/i/save.webp">Parties sauvegardées</h4><div id="hmSaves"></div></div>
   </div>
@@ -361,8 +361,10 @@ for(const n of ['hunt','well','market','granary','tavern','chapel','siege','ston
 const okI=i=>i&&i.complete&&i.naturalWidth;
 function spr(g,n,x,bottom,w,cx){const im=IMG['b_'+n];if(!okI(im))return false;const h=w*im.naturalHeight/im.naturalWidth;g.drawImage(im,x-w/2,cx?bottom-h/2:bottom-h,w,h);return true}
 // Persos animés en grille (tools/anim.py) : ligne 0 repos, 1 marche, 2 attaque, 3 touché + mort. w,h = taille fichier, ax/ay = ancrage des pieds.
-const ANIM={lezard:{w:121,h:101,ax:.466,ay:1,n:'Démon-lézard'}};
-for(const n in ANIM)for(let r=0;r<4;r++)for(let c=0;c<4;c++){const i=new Image();i.src='img/a/'+n+'/'+r+c+'.webp';IMG['a_'+n+'_'+r+c]=i}
+// Chaque animation : planche s (préfixe des fichiers), ligne r, n images (ou liste f), durée d'une image d (s de jeu). atk peut être une liste (attaques alternées).
+const ANIM={lezard:{n:'Démon-lézard',s:{'':{w:145,h:99,ax:.435,ay:.991},b:{w:134,h:92,ax:.402,ay:.986}},
+  idle:{s:'b',r:0,n:6,d:.7},fid:{s:'b',r:1,n:6,d:.3},walk:{s:'b',r:2,n:6},atk:[{s:'b',r:3,n:6},{s:'b',r:4,n:6}],hurt:{s:'',r:3,f:[0]},die:{s:'',r:3,f:[1,2,3]}}};
+for(const n in ANIM){const A=ANIM[n];for(const k of ['idle','fid','walk','atk','hurt','die'])for(const a of [].concat(A[k]||[])){a.F=(a.f||[...Array(a.n).keys()]).map(c=>a.s+a.r+c);for(const f of a.F)if(!IMG['a_'+n+'_'+f]){const i=new Image();i.src='img/a/'+n+'/'+f+'.webp';IMG['a_'+n+'_'+f]=i}}}
 const UP=['idle','w1','w2','atk'];for(const n of ['gardien','fusilier','mystique','tellu','batisseur','bucheron','mineur','fermier','repar','inge','soigneur','cavalier','ulric','vesna','ardente','kristal','isolde','sauge','borr','morne','gris','thaddeus','arbalet','pavois','pretre','sapeur','porteur'])for(const p of UP){const i=new Image();i.src='img/u/'+n+'_'+p+'.webp';IMG['u_'+n+'_'+p]=i}
 const ic=(n)=>`<img class="ic" alt="" src="img/i/${IMAP[n]||n}.webp">`;
 
@@ -1886,9 +1888,10 @@ const ACH=[
 function metaTick(nightKills){const m=metaG();m.ach=m.ach||{};m.kills=(m.kills||0)+(nightKills||0);m.best=Math.max(m.best||0,S.day);
   for(const u of S.units)if(!u.worker&&(u.kills||0)>((m.star&&m.star.k)||0))m.star={t:u.t,n:u.d.n,k:u.kills,lv:u.lv,day:S.day,hero:!!u.hero};
   for(const a of ACH)if(!m.ach[a.id]&&a.f(S,m)){m.ach[a.id]=Date.now();toast('Haut fait débloqué : '+a.n+' !')}metaS(m)}
-const VERSION='0.9.11';
+const VERSION='0.9.12';
 document.querySelectorAll('[data-ver]').forEach(e=>e.textContent='v'+VERSION);document.title='Les Nuits de Lamuline · v'+VERSION;
 const NOTES=[
+  ['v0.9.12','Démon-lézard plus vivant',['Nouvelle planche du Démon-lézard : repos, geste d\'attente (il fait tourner sa dague), marche en 6 images','Deux attaques qui alternent : taille par le haut et estoc bas','Découpe des planches calée sur les pieds : le perso ne tremble plus']],
   ['v0.9.11','Repos plus naturel',['Persos animés : au repos, une seule pose avec une respiration douce au lieu d\'images trop différentes enchaînées']],
   ['v0.9.10','Persos animés',['Nouveau format de sprites animés : 16 images par perso (repos, marche, attaque, touché, mort)','Solo Defender : choix du héros sur l\'accueil, dont le Démon-lézard entièrement animé','Mort animée : le héros s\'effondre et reste au sol jusqu\'à sa relève']],
   ['v0.9.9','Nouveau mode : Solo Defender',['Solo Defender, depuis l\'accueil : un seul Gardien, sans bâtir ni recruter','Clic sur la carte : le Gardien s\'y rend ; clic sur une créature : il la prend pour cible ; il frappe seul tout ce qui l\'approche','La caméra le suit (glisser la carte la libère, le bouton du cadre la recentre)','À chaque aube : un bienfait parmi trois (PV, dégâts, dés, DEF, vitesse, moulinet, soif de sang, donjon…) et ses talents aux niveaux 3 et 5','À terre, il se relève au donjon après quelques secondes : le donjon doit tenir seul','Hordes réduites, une entrée de plus aux nuits 5, 10 et 15, boss toutes les 5 nuits ; record de nuits gardé sur l\'accueil']],
@@ -2130,16 +2133,20 @@ function drawBld0(g,b,t){
   if(!b.d.trap&&(b.fire>0||(b.hp<b.max*.3&&FLAM.has(b.t)))){const n=b.fire>0?3:1;for(let k=0;k<n;k++)fire(g,x+(k-(n-1)/2)*12*s,top+12+k%2*6,.7+.2*s,t+k)}
 }
 const TOOL={porteur:'bucket',soigneur:'staff',batisseur:'mallet',bucheron:'axe',mineur:'pick',fermier:'fork',repar:'hammer',inge:'wrench'};
-function drawAnim(g,u,t){const A=ANIM[u.skin],c=S.clock||0;let r=0,k=0,al=1;
-  if(u.atk>(u._la||0)+1e-6)u._as=c;u._la=u.atk;
-  if(u.down>0){const e=c-(u.downAt||c);r=3;k=e<.3?0:Math.min(3,1+Math.floor((e-.3)/.3));if(u.down<1.5)al=Math.max(0,u.down/1.5)}
-  else if(u._as!==undefined&&c-u._as<.8){r=2;k=Math.min(3,Math.floor((c-u._as)/.2))}
-  else if(u.hurtT&&c-u.hurtT<.25){r=3;k=0}
-  else if(u.walk>0){r=1;k=Math.floor(u.walk/2.4)%4}
-  else{r=0;const L_=A.idle||[0];k=L_[Math.floor(c/1.1)%L_.length]}
-  const im=IMG['a_'+u.skin+'_'+r+k];if(!okI(im))return;const w=A.w/2,h=A.h/2;
+function drawAnim(g,u,t){const A=ANIM[u.skin],c=S.clock||0;let a=A.idle,k=0,al=1,br=0;
+  if(u.atk>(u._la||0)+1e-6){u._as=c;u._ak=(u._ak||0)+1}u._la=u.atk;
+  const atk=[].concat(A.atk),ak=atk[(u._ak||0)%atk.length],ad=ak.d||.15;
+  if(u.down>0){const e=c-(u.downAt||c);if(e<.3)a=A.hurt;else{a=A.die;k=Math.floor((e-.3)/.3)}if(u.down<1.5)al=Math.max(0,u.down/1.5)}
+  else if(u._as!==undefined&&c-u._as<ak.F.length*ad){a=ak;k=Math.floor((c-u._as)/ad)}
+  else if(u.hurtT&&c-u.hurtT<.25)a=A.hurt;
+  else if(u.walk>0){a=A.walk;k=Math.floor(u.walk/1.7);u._fn=c+12+Math.random()*8}
+  else{if(!u._fn)u._fn=c+10+Math.random()*8;
+    if(A.fid&&c>=u._fn&&!(u._fs>=u._fn)){u._fs=c}
+    if(A.fid&&u._fs!==undefined&&c-u._fs<A.fid.F.length*A.fid.d){a=A.fid;k=Math.floor((c-u._fs)/A.fid.d)}
+    else{if(u._fs!==undefined&&u._fs>=u._fn)u._fn=c+12+Math.random()*8;const n=A.idle.F.length,d=A.idle.d||.7;if(n>1){const q=Math.floor(c/d)%(2*n-2);k=q<n?q:2*n-2-q}else br=Math.sin(c*2.2+u.x)}}
+  const F=a.F,key=a===A.walk?F[k%F.length]:F[Math.min(k,F.length-1)],M_=A.s[a.s],im=IMG['a_'+u.skin+'_'+key];if(!okI(im))return;const w=M_.w/2,h=M_.h/2;
   if(!u._gh&&!(u.down>0)){softSh(g,u.x,u.y+1,12,4.2,.45);const p=.45+Math.sin(t*3)*.2;g.strokeStyle=`rgba(255,210,122,${p})`;g.lineWidth=1.6;g.beginPath();g.ellipse(u.x,u.y+1,15,6,0,0,7);g.stroke()}
-  g.save();g.globalAlpha*=al;g.translate(u.x,u.y);g.scale(u.face||1,1);if(r===0){const br=Math.sin(c*2.2+u.x);g.scale(1-br*.006,1+br*.014)}g.drawImage(im,-A.ax*w,-A.ay*h+3,w,h);g.restore();
+  g.save();g.globalAlpha*=al;g.translate(u.x,u.y);g.scale(u.face||1,1);if(br)g.scale(1-br*.006,1+br*.014);g.drawImage(im,-M_.ax*w,-M_.ay*h+3,w,h);g.restore();
   if(!u._gh&&!(u.down>0))lvBadge(g,u,-h*.8)}
 function drawUnit(g,u,t){
   if(u.skin&&ANIM[u.skin]){if(!u.hidden||u.down>0)drawAnim(g,u,t);return}
@@ -2687,7 +2694,7 @@ function soloHud(force){
   const el=$('soloHud');if(!S.solo){el.classList.remove('on');return}el.classList.add('on');const u=soloU();if(!u)return;
   const hp=Math.max(0,u.hp)/u.max,xp0=u.lv>1?xpNeed(u.lv-1):0,xp1=xpNeed(u.lv),xf=u.lv>=10?1:(u.xp-xp0)/(xp1-xp0);
   const bs=Object.keys(S.boon||{}).filter(k=>S.boon[k]).map(k=>`<i title="${BOONS[k].n} : ${BOONS[k].d}"><img class="ic" alt="" src="img/i/${BOONS[k].i}.webp">${S.boon[k]>1?S.boon[k]:''}</i>`).join('');
-  const h=`<img class="sp" alt="" src="${u.skin?'img/a/'+u.skin+'/00.webp':'img/u/gardien_idle.webp'}"><div class="s-b"><div class="s-n"><b>${u.vet||'Gardien'}</b><span>niv. ${u.lv}</span><span>${ic('skull')} ${u.kills||0}</span>${u.down>0?`<span class="s-dn">À terre · ${Math.ceil(u.down/TIME)} s</span>`:''}</div>
+  const h=`<img class="sp" alt="" src="${u.skin?'img/a/'+u.skin+'/b00.webp':'img/u/gardien_idle.webp'}"><div class="s-b"><div class="s-n"><b>${u.vet||'Gardien'}</b><span>niv. ${u.lv}</span><span>${ic('skull')} ${u.kills||0}</span>${u.down>0?`<span class="s-dn">À terre · ${Math.ceil(u.down/TIME)} s</span>`:''}</div>
     <div class="s-bar hp"><i style="width:${(hp*100).toFixed(1)}%"></i><em>${Math.ceil(Math.max(0,u.hp))} / ${Math.round(u.max)}</em></div><div class="s-bar xp"><i style="width:${(Math.max(0,Math.min(1,xf))*100).toFixed(1)}%"></i></div>
     <div class="s-bl">${bs||'<small>Les bienfaits choisis à l\'aube s\'affichent ici.</small>'}</div></div><button class="btn sq" id="soloC" title="Recentrer sur le Gardien">${ic('house')}</button>`;
   if(force||el._h!==h){el.innerHTML=h;el._h=h;const c=$('soloC');if(c)c.onclick=()=>{S.follow=1;centerOn(u.x,u.y)}}
