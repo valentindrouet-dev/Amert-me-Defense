@@ -1888,9 +1888,10 @@ const ACH=[
 function metaTick(nightKills){const m=metaG();m.ach=m.ach||{};m.kills=(m.kills||0)+(nightKills||0);m.best=Math.max(m.best||0,S.day);
   for(const u of S.units)if(!u.worker&&(u.kills||0)>((m.star&&m.star.k)||0))m.star={t:u.t,n:u.d.n,k:u.kills,lv:u.lv,day:S.day,hero:!!u.hero};
   for(const a of ACH)if(!m.ach[a.id]&&a.f(S,m)){m.ach[a.id]=Date.now();toast('Haut fait débloqué : '+a.n+' !')}metaS(m)}
-const VERSION='0.9.12';
+const VERSION='0.9.13';
 document.querySelectorAll('[data-ver]').forEach(e=>e.textContent='v'+VERSION);document.title='Les Nuits de Lamuline · v'+VERSION;
 const NOTES=[
+  ['v0.9.13','Barre de vie lisible',['Les persos animés ont leur barre de vie au-dessus de la tête, plus large']],
   ['v0.9.12','Démon-lézard plus vivant',['Nouvelle planche du Démon-lézard : repos, geste d\'attente (il fait tourner sa dague), marche en 6 images','Deux attaques qui alternent : taille par le haut et estoc bas','Découpe des planches calée sur les pieds : le perso ne tremble plus']],
   ['v0.9.11','Repos plus naturel',['Persos animés : au repos, une seule pose avec une respiration douce au lieu d\'images trop différentes enchaînées']],
   ['v0.9.10','Persos animés',['Nouveau format de sprites animés : 16 images par perso (repos, marche, attaque, touché, mort)','Solo Defender : choix du héros sur l\'accueil, dont le Démon-lézard entièrement animé','Mort animée : le héros s\'effondre et reste au sol jusqu\'à sa relève']],
@@ -2417,7 +2418,7 @@ function draw(t){
   for(let k=flash.length-1;k>=0;k--)if(flash[k].t>.33)flash.splice(k,1);
   // bars
   for(const m of S.mons)if(m.hp<m.max)bar(g,m.x,m.y-m.h-7,m.d.boss?46:Math.max(16,m.w*.5),m.hp/m.max,'#d04030');
-  for(const u of S.units)if(u.hp<u.max&&!u.hidden)bar(g,u.x,u.y-31,16,u.hp/u.max,'#7fbf5a');
+  for(const u of S.units)if(u.hp<u.max&&!u.hidden){if(u.skin&&ANIM[u.skin]){const h=(ANIM[u.skin].hh||84)/2;bar(g,u.x,u.y-h-6,24,u.hp/u.max,'#7fbf5a')}else bar(g,u.x,u.y-31,16,u.hp/u.max,'#7fbf5a')}
   for(const b of S.blds){if(b.d.trap&&!b.build)continue;if(b.t==='wall'&&(b.build||b.upg)){if(b.hp<b.max&&!b.build)bar(g,b.x,b.y-(b.d.h||30)*.8-10,22,b.hp/b.max,'#d0a03a');continue}const w=b.t==='keep'?70:Math.max(22,b.d.s*20),yy=b.t==='keep'?b.y-150:b.y-(b.d.h||30)*.8-10;
     if(b.build)dial(g,b.x,yy-8,1-b.build.left/b.build.total,'#e8b84a',fmtT(b.build.left));
     else{if(b.hp<b.max)bar(g,b.x,yy,w,b.hp/b.max,'#d0a03a');if(b.upg)dial(g,b.x,yy-10,1-b.upg.left/b.upg.total,'#7fb0e8',fmtT(b.upg.left))}}
