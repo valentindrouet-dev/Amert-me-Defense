@@ -110,3 +110,31 @@ Découpe : `python3 tools/sprites.py bld planche.png` puis je nomme les 21 pièc
 Redraw this exact map at twice the resolution (3344×1882 pixels), keeping the composition pixel-for-pixel identical: same clearing shape and position, same four dirt paths entering from the four corners, same tree line, same rocks and rubble spots. Only add detail and sharpness: individual grass blades and wildflowers in the clearing, packed earth and wheel ruts on the paths, dense dark pine and twisted oak forest around the edges with layered canopy, moss on rocks, a few fallen logs and mushrooms at the forest edge. Dark-fantasy pixel art, high-detail 16-bit look, muted earthy palette, soft top-left light, top-down 3/4 isometric view (2:1). No buildings, no characters, no text, no UI.
 ```
 Si l'IA ne garde pas la composition, un **agrandissement ×2** (upscale) de l'image actuelle sans changement de cadrage fera l'affaire.
+
+---
+
+## 8. Persos animés (format 4×4, 16 images)
+
+Une planche par perso, image carrée 1024×1024, avec une image du perso actuel en référence (*keep this exact character design*). Découpe : `python3 tools/anim.py planche.png nom 84` puis ajouter la ligne affichée dans `ANIM`.
+
+```
+Pixel art sprite sheet of ONE character for a dark-fantasy isometric tower defense game.
+Character: <description du perso>.
+
+Layout: a strict grid of 4 rows x 4 columns, 16 frames total, each frame centered in its own equal square cell, generous empty space between frames, no frame touching another. Fully transparent background, no ground, no shadow under the feet, no text, no grid lines, no labels.
+Row 1 – IDLE (4 frames): breathing loop, chest and shoulders rise and fall.
+Row 2 – WALK (4 frames): clear walk cycle — 1 left foot forward wide stride, 2 passing pose body high, 3 right foot forward wide stride, 4 passing pose body high. Legs and arms must visibly swing, no sliding.
+Row 3 – ATTACK (4 frames): 1 anticipation (body coiled back, weapon raised far behind), 2 lunge forward, 3 impact (arm fully extended, motion smear), 4 recovery.
+Row 4 – HURT and DEATH (4 frames): 1 hurt recoil, 2 collapsing to knees, 3 falling sideways, 4 lying dead flat on the ground.
+
+Every frame faces RIGHT in a 3/4 isometric view (2:1). Same character, identical proportions, colors and equipment in every frame, same scale, same pixel size, feet on the same baseline in each cell.
+
+Readability at small size (the sprite will be shown about 50 px tall):
+- strong silhouette with exaggerated, dynamic poses and clear negative space between limbs and body;
+- thick dark 2px outline around the whole figure;
+- high value contrast: bright warm rim light from the top-left, deep shadow on the right side, three clear tones per material;
+- limited palette, no noisy texture;
+- strong accents (eyes, weapon highlight), skin clearly separated in value from clothing.
+Dark-fantasy pixel art, high-detail 16-bit look, muted earthy palette with warm gold accents.
+```
+Attaque à distance : *1 draws, 2 aims, 3 releases with recoil, 4 lowers*. Magie : *1 gathers energy, 2 raises hands, 3 casts with a glow burst, 4 recovers*. Volant : remplacer WALK par *FLY: wing up, wing mid, wing down, wing mid*.

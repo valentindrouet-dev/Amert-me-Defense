@@ -163,6 +163,7 @@ button{font:inherit;color:var(--ink);cursor:pointer}
 .rp-best{display:flex;gap:10px;align-items:center;margin:10px 0;background:#00000038;border-radius:8px;padding:6px 10px}.rp-best img{width:48px;height:48px;object-fit:contain}.rp-best small{display:block;color:var(--dim)}
 .diffs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:4px 0 12px}.diffs .btn{flex-direction:column;align-items:flex-start;white-space:normal;padding:8px;gap:2px}.diffs small{font-weight:500;color:var(--dim);font-size:12px}
 .go-row{display:flex;gap:8px;flex-wrap:wrap}
+.solo-pick{grid-template-columns:repeat(2,minmax(0,1fr));margin:0 0 10px}.solo-pick .btn b .ic{width:26px;height:26px;object-fit:contain}
 .solo-row{display:flex;gap:10px;align-items:center;margin-bottom:8px}.solo-row img{width:58px;height:auto;image-rendering:auto;flex:none;filter:drop-shadow(0 2px 4px #000)}.solo-row p{margin:0;font-size:14px;line-height:1.35;color:#d8c8a6}#soloRec{color:#ffd27a;font-weight:700}
 body.solo #bottom,body.solo #chal,body.solo #res,body.solo #fc,body.solo #mSave,body.solo #mReload,body.solo #mTree,body.solo #mProg,body.solo #selbar{display:none!important}
 #soloHud{display:none;position:fixed;left:50%;bottom:max(10px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:3;align-items:center;gap:12px;padding:8px 12px 8px 8px;width:min(520px,calc(100vw - 24px))}
@@ -309,6 +310,7 @@ body.paused #cv{filter:grayscale(1) brightness(.72) contrast(1.05);transition:fi
       <div class="go-row"><button class="btn hot" id="bGo"><img class="ic" alt="" src="img/i/fire.webp">Allumer les feux</button><button class="btn" id="bRules"><img class="ic" alt="" src="img/i/menu.webp">Comment jouer</button></div></div>
     <div class="hm-sec hm-solo"><h4><img class="ic" alt="" src="img/i/crit.webp">Solo Defender</h4>
       <div class="solo-row"><img alt="" src="img/u/gardien_atk.webp"><p>Un seul Gardien, sans bâtir ni recruter. Cliquez sur la carte pour le déplacer, sur une créature pour la cibler : il frappe tout seul ce qui l'approche. Tenez le plus de nuits possible. <span id="soloRec"></span></p></div>
+      <div class="diffs solo-pick" id="soloPick"><button class="btn" data-skin=""><b><img class="ic" alt="" src="img/u/gardien_idle.webp">Gardien</b><small>Épée et bouclier</small></button><button class="btn" data-skin="lezard"><b><img class="ic" alt="" src="img/a/lezard/00.webp">Démon-lézard</b><small>Nouveau · animations complètes</small></button></div>
       <button class="btn hot" id="bSolo"><img class="ic" alt="" src="img/i/crit.webp">Lancer Solo Defender</button></div>
     <div class="hm-sec"><h4><img class="ic" alt="" src="img/i/save.webp">Parties sauvegardées</h4><div id="hmSaves"></div></div>
   </div>
@@ -358,6 +360,9 @@ const IMAP={slow:'slow'};const SZ={armory:150,stable:156,hall:132,keep:222,farm:
 for(const n of ['hunt','well','market','granary','tavern','chapel','siege','stone','beacon','stable','hall','armory','hospital','mill','quarry','tower','brazier','pit','jawo','jawc','tar','mine','glyph','tower_archers','tower_baliste','tower_mage','merchant']){const i=new Image();i.src='img/b/'+n+'.webp';IMG['b_'+n]=i}
 const okI=i=>i&&i.complete&&i.naturalWidth;
 function spr(g,n,x,bottom,w,cx){const im=IMG['b_'+n];if(!okI(im))return false;const h=w*im.naturalHeight/im.naturalWidth;g.drawImage(im,x-w/2,cx?bottom-h/2:bottom-h,w,h);return true}
+// Persos animés en grille (tools/anim.py) : ligne 0 repos, 1 marche, 2 attaque, 3 touché + mort. w,h = taille fichier, ax/ay = ancrage des pieds.
+const ANIM={lezard:{w:121,h:101,ax:.466,ay:1,n:'Démon-lézard'}};
+for(const n in ANIM)for(let r=0;r<4;r++)for(let c=0;c<4;c++){const i=new Image();i.src='img/a/'+n+'/'+r+c+'.webp';IMG['a_'+n+'_'+r+c]=i}
 const UP=['idle','w1','w2','atk'];for(const n of ['gardien','fusilier','mystique','tellu','batisseur','bucheron','mineur','fermier','repar','inge','soigneur','cavalier','ulric','vesna','ardente','kristal','isolde','sauge','borr','morne','gris','thaddeus','arbalet','pavois','pretre','sapeur','porteur'])for(const p of UP){const i=new Image();i.src='img/u/'+n+'_'+p+'.webp';IMG['u_'+n+'_'+p]=i}
 const ic=(n)=>`<img class="ic" alt="" src="img/i/${IMAP[n]||n}.webp">`;
 
@@ -849,6 +854,7 @@ function hurt(e,r,col,src){
   if(src&&M[e.t]){e.ls=src;if(src.d)e.last=src}
   if(r.fail){float(e.x,e.y-(e.h||26),'Échec','#ddd',0,'fail');return 0}
   let dmg=r.dmg;if(M[e.t]&&e.vap>0)dmg=Math.round(dmg*1.25);if(M[e.t]&&S.hunt[e.t])dmg=Math.round(dmg*(1+.1*S.hunt[e.t]));
+  if(dmg>0&&e.skin)e.hurtT=S.clock;
   if(dmg>0&&!e.d.s)fxAdd('slash',e.x+(Math.random()-.5)*6,e.y-(e.h?e.h*.45:14),{f0:3,f1:5,dur:.35,sz:M[e.t]?28:22,flip:Math.random()<.5});
   e.hp-=dmg;float(e.x,e.y-(e.h?e.h+4:26+(e.d.r||8)),String(dmg),r.crit?'#ffd34a':col||'#fff',r.crit);
   if(r.spec&&dmg>0){const y=e.y-(e.h?e.h*.5:14),sp=r.spec;if(sp.includes('B'))spark(e.x,y,'#6ab0ff',5);if(sp.includes('R'))spark(e.x,y,'#ff5a3a',5);if(sp.includes('W'))spark(e.x,y,'#fff6e0',3);if(r.crit){spark(e.x,y,'#ffd34a',12);shake=Math.max(shake,.18)}}
@@ -1812,7 +1818,7 @@ $('mReload').onclick=()=>{if(!getSave()){toast('Aucune aube sauvegardée pour l\
 $('mSave').onclick=()=>{if(S.phase==='night'||S.eclipse){toast('Impossible de sauvegarder pendant la nuit.');return}const fd=t=>{try{return new Date(t).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}catch(e){return''}};
   $('mPanel').innerHTML='<div class="sec"><h4>'+ic('flag')+'Sauvegarder dans un emplacement</h4>'+[1,2,3].map(i=>{const o=getSave('lamuline-slot'+i);return`<div class="sv"><div class="svd">${o?o.day:'–'}</div><div><b>Emplacement ${i}</b><small>${o?'Jour '+o.day+' · '+fd(o.at):'Vide'}</small></div><div class="sp"><button class="btn hot" data-sv="${i}">${o?'Écraser':'Sauvegarder'}</button></div></div>`}).join('')+'</div>';
   $('mPanel').querySelectorAll('[data-sv]').forEach(b=>b.onclick=()=>{saveGame('lamuline-slot'+b.dataset.sv);toast('Partie sauvegardée (emplacement '+b.dataset.sv+').');$('mSave').click()})};
-function setupStart(){$('hmMods').innerHTML=modsHtml();const mx=(CFG.mods||[]).reduce((a,k)=>a*(MODS[k]?MODS[k].x:1),1);$('modX').textContent=mx>1?'score ×'+mx.toFixed(2).replace(/0$/,''):'aucun · score ×1';$('hmMods').querySelectorAll('[data-mod]').forEach(b=>b.onclick=()=>{const k=b.dataset.mod,l=CFG.mods||[];CFG.mods=l.includes(k)?l.filter(x=>x!==k):[...l,k];saveCfg();setupStart()});const sv=getSave(),bl=$('bLoad');if(sv){bl.style.display='';bl.innerHTML=`<span>${ic('play')}Continuer · jour ${sv.day}<small>Reprendre à la dernière aube</small></span>`}else bl.style.display='none';{const r=soloBest();$('soloRec').textContent=r?'Record : nuit '+r+'.':''}hmRender();document.querySelectorAll('[data-diff]').forEach(b=>b.classList.toggle('on',+b.dataset.diff===(CFG.diff||1)))}
+function setupStart(){$('hmMods').innerHTML=modsHtml();const mx=(CFG.mods||[]).reduce((a,k)=>a*(MODS[k]?MODS[k].x:1),1);$('modX').textContent=mx>1?'score ×'+mx.toFixed(2).replace(/0$/,''):'aucun · score ×1';$('hmMods').querySelectorAll('[data-mod]').forEach(b=>b.onclick=()=>{const k=b.dataset.mod,l=CFG.mods||[];CFG.mods=l.includes(k)?l.filter(x=>x!==k):[...l,k];saveCfg();setupStart()});const sv=getSave(),bl=$('bLoad');if(sv){bl.style.display='';bl.innerHTML=`<span>${ic('play')}Continuer · jour ${sv.day}<small>Reprendre à la dernière aube</small></span>`}else bl.style.display='none';{const r=soloBest();$('soloRec').textContent=r?'Record : nuit '+r+'.':'';document.querySelectorAll('[data-skin]').forEach(b=>{b.classList.toggle('on',b.dataset.skin===(CFG.soloSkin||''));b.onclick=()=>{CFG.soloSkin=b.dataset.skin;saveCfg();setupStart()}})}hmRender();document.querySelectorAll('[data-diff]').forEach(b=>b.classList.toggle('on',+b.dataset.diff===(CFG.diff||1)))}
 document.querySelectorAll('[data-diff]').forEach(b=>b.onclick=()=>{CFG.diff=+b.dataset.diff;saveCfg();setupStart()});
 $('bLoad').onclick=()=>startLoad('lamuline-save');
 $('bRules').onclick=()=>{$('mHelp').click();dialog('<h2>Comment jouer</h2><ul><li>Le jour, bâtissez et recrutez. Chaque chantier prend du temps : les bâtisseurs l\'accélèrent.</li><li>Touchez une unité puis un point de la carte pour l\'y poster. Encadrez une zone vide pour la faire patrouiller.</li><li>Les palissades bloquent la horde et vos unités : prévoyez des portes.</li><li>Les crânes en lisière annoncent par où viendra la prochaine horde.</li><li>Tenez '+GOAL+' nuits, puis le mode infini commence. Si le donjon tombe, Lamuline tombe.</li><li>À l\'aube, chaque habitant mange : 2 vivres par garde, 1 par villageois, 3 par héros. Sans vivres, la garde frappe moins fort.</li><li>Au niveau 3 puis 5, chaque garde choisit un talent (étoile dorée au-dessus de sa tête). Au niveau 4, il devient vétéran avec un nom et un trait.</li><li>Depuis le Donjon, envoyez des gardes en expédition de jour. Les os ramassés sur la horde se façonnent à l\'Armurerie.</li></ul>'+$('mPanel').innerHTML,[{t:'Fermer',hot:1}])};
@@ -1880,9 +1886,10 @@ const ACH=[
 function metaTick(nightKills){const m=metaG();m.ach=m.ach||{};m.kills=(m.kills||0)+(nightKills||0);m.best=Math.max(m.best||0,S.day);
   for(const u of S.units)if(!u.worker&&(u.kills||0)>((m.star&&m.star.k)||0))m.star={t:u.t,n:u.d.n,k:u.kills,lv:u.lv,day:S.day,hero:!!u.hero};
   for(const a of ACH)if(!m.ach[a.id]&&a.f(S,m)){m.ach[a.id]=Date.now();toast('Haut fait débloqué : '+a.n+' !')}metaS(m)}
-const VERSION='0.9.9';
+const VERSION='0.9.10';
 document.querySelectorAll('[data-ver]').forEach(e=>e.textContent='v'+VERSION);document.title='Les Nuits de Lamuline · v'+VERSION;
 const NOTES=[
+  ['v0.9.10','Persos animés',['Nouveau format de sprites animés : 16 images par perso (repos, marche, attaque, touché, mort)','Solo Defender : choix du héros sur l\'accueil, dont le Démon-lézard entièrement animé','Mort animée : le héros s\'effondre et reste au sol jusqu\'à sa relève']],
   ['v0.9.9','Nouveau mode : Solo Defender',['Solo Defender, depuis l\'accueil : un seul Gardien, sans bâtir ni recruter','Clic sur la carte : le Gardien s\'y rend ; clic sur une créature : il la prend pour cible ; il frappe seul tout ce qui l\'approche','La caméra le suit (glisser la carte la libère, le bouton du cadre la recentre)','À chaque aube : un bienfait parmi trois (PV, dégâts, dés, DEF, vitesse, moulinet, soif de sang, donjon…) et ses talents aux niveaux 3 et 5','À terre, il se relève au donjon après quelques secondes : le donjon doit tenir seul','Hordes réduites, une entrée de plus aux nuits 5, 10 et 15, boss toutes les 5 nuits ; record de nuits gardé sur l\'accueil']],
   ['v0.9.8','Difficulté adoucie',['Rations : à partir du jour 4 seulement, 1 par garde et 2 par héros, villageois exemptés ; la famine ne coûte plus que 10 % de dégâts','Les corbeaux redeviennent attaquables au corps à corps (vautours et Mère-Corneille restent hors de portée)','Nouveaux adversaires plus tardifs : frondeurs nuit 8, vautours nuit 9, amas nuit 10, chamans nuit 11 ; portée des frondeurs réduite','Élites à plusieurs affixes dès la nuit 13 (au lieu de 10) ; blindé : +2 DEF au lieu de +3','Brouillard : −10 % de portée au lieu de −20 %','Zone de chasse des gardes rétablie comme en v0.9.5']],
   ['v0.9.7','Talents, vétérans, expéditions et météo',['Talents : au niveau 3 puis 5, chaque garde choisit entre deux branches (étoile dorée quand un choix attend)','Vétérans : au niveau 4, une recrue reçoit un nom et un trait (Cœur-de-Fer, Main-Rouge, Trompe-la-Mort…)','Nouvelles unités : Porte-étendard (+DEF, +dégâts, plus de fuite autour de lui), Tambour de guerre (vitesse et cadence), Chien de guerre (rapide, flaire les Ombres, traque les Fouisseurs) et le Chenil','Ultime des héros : une jauge se remplit en abattant des créatures ; trois fois sa compétence, +50 % de dégâts, invulnérable 10 s','Expéditions depuis le Donjon : forêt, ruines, hameau ou repaire, contre bois, pierre, vivres, os, avec un risque','Rations : chaque habitant mange à l\'aube ; sans vivres, la garde frappe moins fort','Os de charogne ramassés sur la horde, façonnés à l\'Ossuaire de l\'Armurerie (six améliorations permanentes)','Reliques débloquées d\'une partie à l\'autre, à équiper sur l\'accueil (1 à 3 emplacements)','Météo selon la saison : pluie (incendies difficiles), neige (tout ralentit), brouillard (portée réduite), feuilles d\'automne','Traces au sol : sang, brûlures, terre retournée ; les cadavres restent jusqu\'à l\'aube puis s\'effacent','Arrivée de la horde : brume rouge aux entrées, totems embrasés, voile rouge à la tombée de la nuit','Bâtiments abîmés assombris, braises sous 30 % de PV ; chantiers qui fument, bâtiments qui « poussent » à l\'achèvement','Portraits : blessé, à l\'agonie, en furie, vétéran','Le cadre d\'unité affiche de nouveau les boutons (compétence des héros, talents, renvoi)']],
@@ -2122,7 +2129,19 @@ function drawBld0(g,b,t){
   if(!b.d.trap&&(b.fire>0||(b.hp<b.max*.3&&FLAM.has(b.t)))){const n=b.fire>0?3:1;for(let k=0;k<n;k++)fire(g,x+(k-(n-1)/2)*12*s,top+12+k%2*6,.7+.2*s,t+k)}
 }
 const TOOL={porteur:'bucket',soigneur:'staff',batisseur:'mallet',bucheron:'axe',mineur:'pick',fermier:'fork',repar:'hammer',inge:'wrench'};
+function drawAnim(g,u,t){const A=ANIM[u.skin],c=S.clock||0;let r=0,k=0,al=1;
+  if(u.atk>(u._la||0)+1e-6)u._as=c;u._la=u.atk;
+  if(u.down>0){const e=c-(u.downAt||c);r=3;k=e<.3?0:Math.min(3,1+Math.floor((e-.3)/.3));if(u.down<1.5)al=Math.max(0,u.down/1.5)}
+  else if(u._as!==undefined&&c-u._as<.8){r=2;k=Math.min(3,Math.floor((c-u._as)/.2))}
+  else if(u.hurtT&&c-u.hurtT<.25){r=3;k=0}
+  else if(u.walk>0){r=1;k=Math.floor(u.walk/2.4)%4}
+  else{r=0;k=[0,1,3,1][Math.floor(c/.55)%4]}
+  const im=IMG['a_'+u.skin+'_'+r+k];if(!okI(im))return;const w=A.w/2,h=A.h/2;
+  if(!u._gh&&!(u.down>0)){softSh(g,u.x,u.y+1,12,4.2,.45);const p=.45+Math.sin(t*3)*.2;g.strokeStyle=`rgba(255,210,122,${p})`;g.lineWidth=1.6;g.beginPath();g.ellipse(u.x,u.y+1,15,6,0,0,7);g.stroke()}
+  g.save();g.globalAlpha*=al;g.translate(u.x,u.y);g.scale(u.face||1,1);g.drawImage(im,-A.ax*w,-A.ay*h+3,w,h);g.restore();
+  if(!u._gh&&!(u.down>0))lvBadge(g,u,-h*.8)}
 function drawUnit(g,u,t){
+  if(u.skin&&ANIM[u.skin]){if(!u.hidden||u.down>0)drawAnim(g,u,t);return}
   if(u.hidden)return;
   if(u.hero&&!u._h&&!u._gh){const own=okI(IMG['u_'+u.t+'_idle']);u._h=1;g.save();const p=.5+Math.sin(t*3)*.25,ur=(u.ult||0)>=100;g.strokeStyle=`rgba(255,210,122,${p})`;g.lineWidth=ur?3:2;g.beginPath();g.ellipse(u.x,u.y,ur?17+Math.sin(t*6)*2:13,ur?7.5:5.5,0,0,7);g.stroke();if(u.furyT>S.clock){g.strokeStyle='rgba(255,120,40,.8)';g.beginPath();g.ellipse(u.x,u.y,20,8.5,0,0,7);g.stroke()}
     if(!own){g.translate(u.x,u.y);g.scale(1.25,1.25);g.translate(-u.x,-u.y)}drawUnit(g,u,t);g.restore();u._h=0;
@@ -2604,7 +2623,7 @@ function newSolo(){
   cam.z=Math.max(minZ(),1.5);fresh();closeInfo();tool=null;S.speed=1;$('spd').textContent='×1';$('bSpeed').classList.remove('on');
   S.solo=1;S.boon={};S.mods=[];S.relics=[];S.units=[];selU=[];S.res={bois:0,pierre:0,vivres:0,cendre:0,os:0};
   {const b=S.keep;b.lv=2;b.max=Math.round((L(b).hp||1)*bHpMul());b.hp=b.max}
-  const u=addUnit('gardien');u.solo=1;u.name='Gardien de Lamuline';u.x=S.keep.x+10;u.y=S.keep.y+70;u.post={x:u.x,y:u.y};refreshMax();u.hp=u.max;
+  const u=addUnit('gardien');u.solo=1;u.name='Gardien de Lamuline';if(CFG.soloSkin&&ANIM[CFG.soloSkin]){u.skin=CFG.soloSkin;u.vet=ANIM[u.skin].n}u.x=S.keep.x+10;u.y=S.keep.y+70;u.post={x:u.x,y:u.y};refreshMax();u.hp=u.max;
   S.entries=openEntries(1);prepNext();S.t=DAY-SOLO_DAY-20;S.follow=1;
   document.body.classList.add('solo');renderCards();renderQueue();centerOn(u.x,u.y);soloHud(true);
 }
@@ -2628,7 +2647,7 @@ function soloStep(u,dt){
   return false;
 }
 function soloDown(u){
-  u.down=8+S.day*.6;u.hp=0;u.hidden=true;u.mv=0;u.focus=null;burst(u.x,u.y-14,'#8a1a10',16);sfx('udie',u.x,u.y);S.ns.lostU++;
+  u.downAt=S.clock;u.down=8+S.day*.6;u.hp=0;u.hidden=true;u.mv=0;u.focus=null;burst(u.x,u.y-14,'#8a1a10',16);sfx('udie',u.x,u.y);S.ns.lostU++;
   jlog('Le Gardien tombe'+(u.lastBy?' sous les coups : '+u.lastBy:'')+'. Il se relève au donjon.','fall');toast('Le Gardien est à terre ! Il se relève au donjon dans '+Math.ceil(u.down/TIME)+' s. Le donjon doit tenir seul.');
 }
 function soloTap(w){
@@ -2667,7 +2686,7 @@ function soloHud(force){
   const el=$('soloHud');if(!S.solo){el.classList.remove('on');return}el.classList.add('on');const u=soloU();if(!u)return;
   const hp=Math.max(0,u.hp)/u.max,xp0=u.lv>1?xpNeed(u.lv-1):0,xp1=xpNeed(u.lv),xf=u.lv>=10?1:(u.xp-xp0)/(xp1-xp0);
   const bs=Object.keys(S.boon||{}).filter(k=>S.boon[k]).map(k=>`<i title="${BOONS[k].n} : ${BOONS[k].d}"><img class="ic" alt="" src="img/i/${BOONS[k].i}.webp">${S.boon[k]>1?S.boon[k]:''}</i>`).join('');
-  const h=`<img class="sp" alt="" src="img/u/gardien_idle.webp"><div class="s-b"><div class="s-n"><b>${u.vet||'Gardien'}</b><span>niv. ${u.lv}</span><span>${ic('skull')} ${u.kills||0}</span>${u.down>0?`<span class="s-dn">À terre · ${Math.ceil(u.down/TIME)} s</span>`:''}</div>
+  const h=`<img class="sp" alt="" src="${u.skin?'img/a/'+u.skin+'/00.webp':'img/u/gardien_idle.webp'}"><div class="s-b"><div class="s-n"><b>${u.vet||'Gardien'}</b><span>niv. ${u.lv}</span><span>${ic('skull')} ${u.kills||0}</span>${u.down>0?`<span class="s-dn">À terre · ${Math.ceil(u.down/TIME)} s</span>`:''}</div>
     <div class="s-bar hp"><i style="width:${(hp*100).toFixed(1)}%"></i><em>${Math.ceil(Math.max(0,u.hp))} / ${Math.round(u.max)}</em></div><div class="s-bar xp"><i style="width:${(Math.max(0,Math.min(1,xf))*100).toFixed(1)}%"></i></div>
     <div class="s-bl">${bs||'<small>Les bienfaits choisis à l\'aube s\'affichent ici.</small>'}</div></div><button class="btn sq" id="soloC" title="Recentrer sur le Gardien">${ic('house')}</button>`;
   if(force||el._h!==h){el.innerHTML=h;el._h=h;const c=$('soloC');if(c)c.onclick=()=>{S.follow=1;centerOn(u.x,u.y)}}
