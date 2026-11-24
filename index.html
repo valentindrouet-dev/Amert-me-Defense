@@ -163,6 +163,15 @@ button{font:inherit;color:var(--ink);cursor:pointer}
 .rp-best{display:flex;gap:10px;align-items:center;margin:10px 0;background:#00000038;border-radius:8px;padding:6px 10px}.rp-best img{width:48px;height:48px;object-fit:contain}.rp-best small{display:block;color:var(--dim)}
 .diffs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:4px 0 12px}.diffs .btn{flex-direction:column;align-items:flex-start;white-space:normal;padding:8px;gap:2px}.diffs small{font-weight:500;color:var(--dim);font-size:12px}
 .go-row{display:flex;gap:8px;flex-wrap:wrap}
+.solo-row{display:flex;gap:10px;align-items:center;margin-bottom:8px}.solo-row img{width:58px;height:auto;image-rendering:auto;flex:none;filter:drop-shadow(0 2px 4px #000)}.solo-row p{margin:0;font-size:14px;line-height:1.35;color:#d8c8a6}#soloRec{color:#ffd27a;font-weight:700}
+body.solo #bottom,body.solo #chal,body.solo #res,body.solo #fc,body.solo #mSave,body.solo #mReload,body.solo #mTree,body.solo #mProg,body.solo #selbar{display:none!important}
+#soloHud{display:none;position:fixed;left:50%;bottom:max(10px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:3;align-items:center;gap:12px;padding:8px 12px 8px 8px;width:min(520px,calc(100vw - 24px))}
+#soloHud.on{display:flex}#soloHud .sp{width:52px;height:auto;flex:none;filter:drop-shadow(0 2px 3px #000)}#soloHud .s-b{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+#soloHud .s-n{display:flex;gap:10px;align-items:center;font:600 14px "Alegreya Sans",sans-serif;color:#d8c8a6}#soloHud .s-n b{font:20px/1 "Pirata One",serif;color:#f1e2bd}#soloHud .s-n .ic{width:16px;height:16px;vertical-align:-3px}#soloHud .s-dn{color:#ff7a5a;font-weight:700}
+#soloHud .s-bar{position:relative;height:14px;border-radius:7px;background:#1a120c;border:1px solid #5a4430;overflow:hidden}#soloHud .s-bar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(#d4483a,#8a1e14);transition:width .2s}#soloHud .s-bar em{position:relative;display:block;text-align:center;font:700 11px/13px "Alegreya Sans",sans-serif;color:#fff;font-style:normal;text-shadow:0 1px 2px #000}
+#soloHud .s-bar.xp{height:6px}#soloHud .s-bar.xp i{background:linear-gradient(#ffe08a,#c89a3a)}#soloHud .s-bl{display:flex;gap:6px;flex-wrap:wrap;min-height:20px;align-items:center}#soloHud .s-bl i{display:inline-flex;align-items:center;gap:1px;font:700 12px "Alegreya Sans",sans-serif;color:#ffd27a;font-style:normal}#soloHud .s-bl .ic{width:20px;height:20px}#soloHud .s-bl small{color:#8a7a60;font-size:12px}
+.boons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 4px}.btn.boon{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;text-align:center;white-space:normal;height:auto}.btn.boon .ic{width:40px;height:40px}.btn.boon b{font-size:16px}.btn.boon small{font-size:13px;color:#d8c8a6;font-weight:400}.btn.boon em{font-size:11px;color:#a8977a}
+@media(max-width:600px){.boons{grid-template-columns:1fr}}
 #ovStart.home{background:linear-gradient(180deg,#0c0907b8,#0c0907ec),url(img/bg.webp) center/cover;align-items:stretch;overflow:auto;padding:18px}
 .hm{display:grid;grid-template-columns:minmax(320px,440px) minmax(0,1fr);gap:14px;width:100%;max-width:1240px;margin:auto;align-items:start}
 .hm-l{padding:18px 18px 16px;display:flex;flex-direction:column;gap:12px}.hm-t{display:flex;gap:12px;align-items:center}.hm-t img{width:96px;filter:drop-shadow(0 6px 10px #000)}.hm-t h2{font-size:44px;margin:0 0 4px}.hm-t p{font-size:15px;margin:0;color:#c8b89a}
@@ -281,7 +290,7 @@ body.paused #cv{filter:grayscale(1) brightness(.72) contrast(1.05);transition:fi
 <div id="toasts"></div>
 <div id="tip" class="plank"></div>
 <div id="viewPop" class="plank"><label class="opt"><input type="checkbox" data-vf="vRange"><span><b>Portées</b><small>Tours, donjon, catapultes</small></span></label><label class="opt"><input type="checkbox" data-vf="vLight"><span><b>Lumière</b><small>Braseros, phares, prêtres</small></span></label><label class="opt"><input type="checkbox" data-vf="vHeal"><span><b>Soins</b><small>Puits, soigneurs, Sauge</small></span></label></div>
-<div id="selbar"></div><div id="chal" class="plank"></div>
+<div id="selbar"></div><div id="soloHud" class="plank"></div><div id="chal" class="plank"></div>
 <div id="info" class="plank"><button class="btn sq" id="iClose" aria-label="Fermer"><img class="ic" alt="" src="img/i/close.webp"></button><div id="iBody"></div><div class="acts" id="iActs"></div></div>
 <div id="bottom">
   <div id="queue"></div>
@@ -298,6 +307,9 @@ body.paused #cv{filter:grayscale(1) brightness(.72) contrast(1.05);transition:fi
       <div class="diffs" id="diffs"><button class="btn" data-diff="0.65"><b><img class="ic" alt="" src="img/i/sun.webp">Paisible</b><small>Hordes réduites, ressources ×1,5</small></button><button class="btn" data-diff="1"><b><img class="ic" alt="" src="img/i/moon.webp">Normal</b><small>L'expérience prévue</small></button><button class="btn" data-diff="1.4"><b><img class="ic" alt="" src="img/i/skull.webp">Cauchemar</b><small>Hordes ×1,4, ressources ×0,8</small></button></div>
       <h4 style="margin-top:2px"><img class="ic" alt="" src="img/i/trophy.webp">Défis <small id="modX" style="font:600 13px Alegreya Sans,sans-serif;color:#a8977a;margin-left:6px"></small></h4><div id="hmMods"></div>
       <div class="go-row"><button class="btn hot" id="bGo"><img class="ic" alt="" src="img/i/fire.webp">Allumer les feux</button><button class="btn" id="bRules"><img class="ic" alt="" src="img/i/menu.webp">Comment jouer</button></div></div>
+    <div class="hm-sec hm-solo"><h4><img class="ic" alt="" src="img/i/crit.webp">Solo Defender</h4>
+      <div class="solo-row"><img alt="" src="img/u/gardien_atk.webp"><p>Un seul Gardien, sans bâtir ni recruter. Cliquez sur la carte pour le déplacer, sur une créature pour la cibler : il frappe tout seul ce qui l'approche. Tenez le plus de nuits possible. <span id="soloRec"></span></p></div>
+      <button class="btn hot" id="bSolo"><img class="ic" alt="" src="img/i/crit.webp">Lancer Solo Defender</button></div>
     <div class="hm-sec"><h4><img class="ic" alt="" src="img/i/save.webp">Parties sauvegardées</h4><div id="hmSaves"></div></div>
   </div>
   <div class="hm-r">
@@ -468,7 +480,7 @@ const ENTRY=[
 ];
 ENTRY.forEach(E=>{E.p=E.p.map(q=>[q[0]*MK,q[1]*MK]);if(E.eb){E.eb.x*=MK;E.eb.y*=MK}});
 const entPt=e=>{const p=ENTRY[e].p;return p[p.length-1]};const entMk=e=>{const p=ENTRY[e].p,a=p[p.length-3],b=p[p.length-2];return[(a[0]+b[0])/2,(a[1]+b[1])/2]};
-const openEntries=d=>d>=8?[0,1,2,3]:d>=4?[0,1,2]:[0,1];
+const openEntries=d=>S&&S.solo?[0,1,2,3].slice(0,d>=15?4:d>=10?3:d>=5?2:1):d>=8?[0,1,2,3]:d>=4?[0,1,2]:[0,1];
 const WORKSPOT={bucheron:[[600,206],[1120,214],[205,560],[1460,560]],mineur:[[1500,612],[1190,800]],fermier:[[700,560]]};for(const k in WORKSPOT)WORKSPOT[k]=WORKSPOT[k].map(q=>[q[0]*MK,q[1]*MK]);
 
 
@@ -579,7 +591,7 @@ const HTABLES=[
   {n:'Chœur de peste',t:12,g:[['peste',4,6],['necro',2,3],['corbeaux',3,4]]}
 ];
 // au-delà de la nuit 12 la horde grossit linéairement (les PV montent toujours de 16 %/nuit)
-const hBudget=(n,type,dm)=>(n<=12?3+4.6*n+.65*n*n:151.8+(n-12)*12)*dm*(type==='calme'?.5:1)*(hasMod('horde')?1.3:1)*(hasMod('longue')?1.2:1);
+const hBudget=(n,type,dm)=>(n<=12?3+4.6*n+.65*n*n:151.8+(n-12)*12)*dm*(type==='calme'?.5:1)*(hasMod('horde')?1.3:1)*(hasMod('longue')?1.2:1)*(S&&S.solo?.3:1);
 function genHorde(n,type){
   const dm=S.diff||1,rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
   const pool=HTABLES.filter(T=>T.t<=n).map(T=>({T,w:Math.max(.25,1-(n-T.t)*.12)*(n>10?1+(T.t>=8?.5:0):1)}));
@@ -595,12 +607,12 @@ function genHorde(n,type){
   groups.sort(()=>Math.random()-.5);
   groups.forEach((G,gi)=>{const e=ents[Math.floor(Math.random()*ents.length)],t0=gi*(span/groups.length)+Math.random()*2;
     G.mem.forEach((t,k)=>q.push({t,ent:e,at:Math.min(lateAt(t),t0+k*.7+Math.random()*.4),hp:Math.round(M[t].hp*hpk),grp:G.n,aff:n>=3&&Math.random()<(hasMod('elite')?.36:.12)?rollAff(n):null}))});q.forEach(x=>{x.elite=x.aff?x.aff[0]:null});
-  const boss=bossFor(n,type);
-  if(boss)q.push({t:boss,ent:ents[Math.floor(Math.random()*ents.length)],at:3,hp:Math.round(M[boss].hp*hpk),grp:M[boss].n,elite:null});
+  const boss=S.solo&&n%5?null:bossFor(n,type);
+  if(boss)q.push({t:boss,ent:ents[Math.floor(Math.random()*ents.length)],at:3,hp:Math.round(M[boss].hp*hpk*(S.solo?.3:1)),grp:M[boss].n,elite:null});
   q.groups=groups.map(G=>G.n);
   return q;
 }
-function pickNight(n){if(n<3)return'normal';const r=Math.random();return r<.12?'sang':r<.22?'brume':r<.3&&n%5!==0?'calme':r<.38?'orage':'normal'}
+function pickNight(n){if(n<3||(S&&S.solo&&n%5===0))return'normal';const r=Math.random();return r<.12?'sang':r<.22?'brume':r<.3&&n%5!==0?'calme':r<.38?'orage':'normal'}
 function prepNext(){S.nextNight=pickNight(S.day);S.nextHorde=genHorde(S.day,S.nextNight)}
 
 // ---------- v0.9.7 : nouveaux adversaires, boss et affixes ----------
@@ -801,6 +813,7 @@ function us(u){const d=u.d,e=d.hero?eqB(''):eqB(u.t),lv=(u.lv||1)-1,a=u._a||{},c
   if(u.tal){if(T_('def2'))def+=2;if(T_('def3'))def+=3;if(T_('hp40')){hp*=1.4;if(d.dog)def+=1}if(T_('hp60'))hp*=1.6;if(T_('taunt'))hp*=1.3;if(T_('armor')){def+=2;hp*=1.3}
     if(T_('rng40'))range+=40;if(T_('rng50'))range+=50;if(T_('diceR'))dice+='R';if(T_('diceB'))dice+='B';if(T_('cd30'))cd*=.7;if(T_('cd25'))cd*=.75;if(T_('aoe20'))aoe+=20;if(T_('aoe30'))aoe+=30;if(T_('mul50'))mul*=1.5;if(T_('spd25'))sp*=1.25}
   if(u.trait){const t=u.trait;if(t==='fer')hp*=1.15;else if(t==='faucon')range*=1.12;else if(t==='rouge')mul*=1.12;else if(t==='leger')sp*=1.15;else if(t==='froid')cd*=.9;else if(t==='mort'&&u.hp<u.max/3)def+=2}
+  if(u.solo){const o={hp,mul,def,sp,cd,dice};soloStats(o);hp=o.hp;mul=o.mul;def=o.def;sp=o.sp;cd=o.cd;dice=o.dice}
   if(gd){if(hasB('chitine'))def+=1;if(hasR('corne'))def+=1;if(S.famine)mul*=.9}
   if((d.dog||d.mount)&&hasB('crocs'))mul*=1.2;if(d.dog)hp*=1+.25*Math.max(0,kennelLv()-1);
   if(u.furyT>c)mul*=1.5;sp*=wxSpd();if(range>=60)range*=wxRng();
@@ -871,7 +884,7 @@ function spawn(s){seeM(s.t);
   if(d.boss){toast((d.n)+' surgit par '+ENTRY[s.ent].n+' !');sfx('roar');jlog(d.n+' surgit par '+ENTRY[s.ent].n+'.','boss')}
 }
 function spawnAt(t,x,y){seeM(t);const d=M[t],sp=d.spr||t,sc=d.sc||1,hp=Math.round(d.hp*(1+.13*(S.day-1)));S.mons.push({w:MS[sp].w1[0]*sc,h:MS[sp].w1[1]*sc,t,d,x,y,wp:3,path:[[x,y],[x,y],[x,y]],hp,max:hp,cdT:1,burn:0,gel:0,hold:0,pitT:0,glyT:0,tar:0,vap:0,face:1,walk:0,grow:1});S.hordeMax+=hp}
-function dawn(burned){
+function dawn(burned){if(S.solo)return soloDawn(burned);
   S.phase='dawn';S.t=0;S.st.nights++;if(!S.lostNight)S.st.perfect++;
   try{const r=+localStorage.getItem('lamuline-best')||0;if(S.day>r)localStorage.setItem('lamuline-best',S.day)}catch(e){}
   const bonus={bois:10+4*S.day,pierre:6+3*S.day,vivres:8+3*S.day};
@@ -902,7 +915,7 @@ function dawn(burned){
   if(!CFG.noReport)showReport(R);else toast((burned?'Le soleil réduit en cendres '+burned+' créatures. ':'L\'aube se lève. ')+'Butin : '+costTxt(bonus)+'.');
   if(R.win)setTimeout(()=>endScreen(true),400);
 }
-function dayStart(){setTimeout(hintTxt,0);
+function dayStart(){setTimeout(hintTxt,0);if(S.solo){S.t=DAY-SOLO_DAY;S.rain=0;S.storm=false;S.eclAt=0;S.merchant=null;setWx(rollWx());return}
   S.rain=Math.random()<.35?Math.random()*.6:0;S.storm=false;S.eclAt=0;S.merchant=null;setWx(rollWx());if(S.wx!=='clair')toast('Météo : '+WX[S.wx].n+(WX[S.wx].d?' · '+WX[S.wx].d:'')+'.');
   if(S.day>=2&&Math.random()<.25){const k=S.keep,o=OFFERS.slice().sort(()=>Math.random()-.5).slice(0,3);S.merchant={x:k.x+170,y:k.y+90,offers:o,sold:[]};toast('Un marchand ambulant s\'est installé près du donjon. Touchez-le pour commercer.')}
   if(S.day>=3&&Math.random()<.15){const free=HEROES.filter(h=>!S.units.some(u=>u.t===h.id)&&S.heroes[h.id]!=='queued');if(free.length&&popUsed()<popCap()+1){const h=free[Math.floor(Math.random()*free.length)];const u=addUnit(h.id);u.temp=1;u.lv=2+Math.floor(S.day/3);u.xp=xpNeed(u.lv-1);refreshMax();u.hp=u.max;if(!S.heroes[h.id])S.heroes[h.id]='guest';toast(h.n+', héros errant, propose son épée pour cette nuit.')}}
@@ -978,6 +991,7 @@ function step(dt){
   expStep(dt);
   for(const u of S.units){
     if(u.exp)continue;
+    if(u.solo&&soloStep(u,dt))continue;
     u.cdT-=dt;if(u.atk)u.atk=Math.max(0,u.atk-dt);
     const sU=us(u),wm=workMul();
     let tx=u.post.x,ty=u.post.y,act=false;
@@ -1025,15 +1039,15 @@ function step(dt){
           const c=cellOf(px,py);for(const [a,b2] of [[0,0],[1,0],[0,1],[-1,0],[0,-1],[1,1]]){const ci=c.i+a,cj=c.j+b2;if(validCell(ci,cj)&&!S.grid.has(key(ci,cj))){const mb=addBld('mine',ci,cj,true);mb.by=u;if(hasT(u,'powder'))mb.lv=2;if(hasT(u,'big'))mb.big=1;float(mb.x,mb.y-20,'Baril posé','#ffcf7a');break}}}}
       // morale & flee
       const allies=S.units.some(o=>o!==u&&!o.worker&&!o.hidden&&Math.hypot(o.x-u.x,o.y-u.y)<90);
-      if(!u.hero&&!allies&&u.hp<u.max*.35&&S.mons.length&&!(u._a&&u._a.brave)&&u.trait!=='mort')u.flee=true;else if(u.flee&&(u.hp>u.max*.6||allies))u.flee=false;
+      if(!u.hero&&!u.solo&&!allies&&u.hp<u.max*.35&&S.mons.length&&!(u._a&&u._a.brave)&&u.trait!=='mort')u.flee=true;else if(u.flee&&(u.hp>u.max*.6||allies))u.flee=false;
       if(u.mv){u.mvT=(u.mvT||0)+dt;if(!anc||Math.hypot(tx-u.x,ty-u.y)<16||u.mvT>14)u.mv=0;else u.flee=false}
       if(u.mv){/* ordre du joueur : on rejoint la destination sans se laisser accrocher */}
       else if(u.flee){tx=k.x;ty=k.y+56;if(Math.random()<dt*.2)float(u.x,u.y-34,'!','#ffcf6a',1)}
       else{
-      const stc=u.stance||'pursue',lim=stc==='zone'||u.guardB?230:u.patrol?1e9:420;
+      const stc=u.stance||'pursue',lim=u.solo?240:stc==='zone'||u.guardB?230:u.patrol?1e9:420;
       let m=null;
-      if(sU.dice&&S.mons.length){const pool=[];for(const m of visM)if(m._inC&&Math.abs(m.x-anc.x)<lim&&Math.hypot(m.x-anc.x,m.y-anc.y)<lim&&(!u.patrol||inPat(u.patrol,m,90)||Math.hypot(m.x-k.x,m.y-k.y)<170)&&!(m.d.fly&&m.t!=='corbeaux'&&sU.range<60))pool.push(m);m=nearestP(pool,u.x,u.y,1e9);
-        if(m&&stc==='hold'&&Math.hypot(m.x-u.x,m.y-u.y)>sU.range+(m.d.r||8)+4)m=null}
+      if(sU.dice&&S.mons.length){const pool=[];for(const m of visM)if(m._inC&&Math.abs(m.x-anc.x)<lim&&Math.hypot(m.x-anc.x,m.y-anc.y)<lim&&(!u.patrol||inPat(u.patrol,m,90)||Math.hypot(m.x-k.x,m.y-k.y)<170)&&!(m.d.fly&&m.t!=='corbeaux'&&sU.range<60&&!u.solo))pool.push(m);m=nearestP(pool,u.x,u.y,1e9);
+        if(m&&stc==='hold'&&Math.hypot(m.x-u.x,m.y-u.y)>sU.range+(m.d.r||8)+4)m=null;if(u.focus)m=u.focus}
       if(m){
         const dist=Math.hypot(m.x-u.x,m.y-u.y),reach=sU.range+(m.d.r||8);
         if(dist<=reach&&(sU.range>=60||!wallBetween(u,m))){tx=u.x;ty=u.y;u.face=m.x<u.x?-1:1;
@@ -1125,7 +1139,7 @@ function step(dt){
   for(const p of S.mproj){const t=p.tg;if((t.d.s&&!S.blds.includes(t))||(!t.d.s&&!S.units.includes(t))){p.dead=1;continue}const tx=t.x,ty=t.y-(t.d.s?20:14),dx=tx-p.x,dy=ty-p.y,d=Math.hypot(dx,dy),s=p.sp*dt;
     if(d<=s){p.dead=1;if(p.kind==='bone'){burst(tx,ty,'#e8e0d0',8);sfx('hit',tx,ty)}else{burst(tx,ty,'#9ad04a',8);fxAdd('acid',tx,ty+4,{f0:1,f1:5,dur:.5,sz:40,add:1})}const r=roll(p.dice,t.d.s?0:us(t).def,p.mul);t.lastBy=p.by||'Cracheur';if(t.d.s){hitBld(t,r);if(p.kind!=='bone'&&FLAM.has(t.t)&&Math.random()<.25&&S.blds.includes(t)&&!S.storm&&S.night.type!=='orage'&&S.wx!=='pluie'){t.fire=t.fire||.01;float(t.x,t.y-50,'Incendie !','#ff8a3a')}}else hurt(t,r,'#b0e040')}else{p.x+=dx/d*s;p.y+=dy/d*s}}
   S.mproj=S.mproj.filter(p=>!p.dead);
-  for(const m of S.mons)if(m.hp<=0){S.kills++;S.st.kills++;S.ns.kills++;S.kt[m.t]=(S.kt[m.t]||0)+1;PEND.kt[m.t]=(PEND.kt[m.t]||0)+1;jKill(m);boneDrop(m);decal(m.x,m.y,['peste','cracheur','chancre','amas','grouillon'].includes(m.t)?'ichor':'blood',m.d.boss?2.2:Math.max(.8,m.w/40));
+  for(const m of S.mons)if(m.hp<=0){if(S.solo&&bn('sang')){const g=soloU();if(g&&!(g.down>0))g.hp=Math.min(g.max,g.hp+4*bn('sang'))}S.kills++;S.st.kills++;S.ns.kills++;S.kt[m.t]=(S.kt[m.t]||0)+1;PEND.kt[m.t]=(PEND.kt[m.t]||0)+1;jKill(m);boneDrop(m);decal(m.x,m.y,['peste','cracheur','chancre','amas','grouillon'].includes(m.t)?'ichor':'blood',m.d.boss?2.2:Math.max(.8,m.w/40));
     if(m.last&&m.last.hero&&S.units.includes(m.last))m.last.ult=Math.min(100,(m.last.ult||0)+4);for(const h of S.units)if(h.hero&&h!==m.last&&!h.hidden&&Math.hypot(h.x-m.x,h.y-m.y)<220)h.ult=Math.min(100,(h.ult||0)+1.5);sfx(m.d.boss?'roar':'mdie',m.x,m.y);if(m.d.boss){PEND.bosses++;jlog(m.d.n+' s\'effondre ('+killerOf(m)+').','boss')}else if(m.elite)jlog('Élite abattue : '+m.d.n+' ('+killerOf(m)+').','kill');if(m.t==='brute'){S.st.brutes++;S.ns.brutes++}if(m.t==='colosse')S.st.colosses++;if(m.t==='matriarche')S.st.matri=(S.st.matri||0)+1;if(m.ls==='trap'){S.st.trapKills++;S.ns.traps++}
     if(m.last&&S.units.includes(m.last)&&!m.last.worker){m.last.xp+=(XPV[m.t]||5)*(S.night.type==='sang'&&night?2:1)*(m.elite?2:1);m.last.nk=(m.last.nk||0)+1;m.last.kills=(m.last.kills||0)+1}
     if(m.d.boss){S.res.cendre=(S.res.cendre||0)+3;float(m.x,m.y-m.h-10,'+3 Cendres','#ffd27a',1)}else if(m.elite&&Math.random()<.35){S.res.cendre=(S.res.cendre||0)+1;float(m.x,m.y-m.h-10,'+1 Cendre','#ffd27a',1)}
@@ -1134,8 +1148,9 @@ function step(dt){
     fxAdd('death',m.x,m.y-(m.h||20)*.4,{dur:.7,sz:m.d.boss?120:Math.max(44,m.w*1.2)});const sp=m.d.spr||m.t;S.corpses.push({t:sp,x:m.x,y:m.y,face:m.face,life:0,sc:(m.d.sc||1)*(m.grow||1)});burst(m.x,m.y-6,'#3a2a20',m.d.boss?30:10);if(m.d.boss){toast(m.d.n+' s\'effondre !');shake=.6}if(hoverEnt===m)hoverEnt=null;if(sel===m)closeInfo()}
   S.mons=S.mons.filter(m=>m.hp>0);
   for(const u of S.units)if(u.hp<=0&&u.furyT>S.clock)u.hp=1;
-  for(const u of S.units)if(u.hp<=0){S.ns.lostU++;sfx('udie',u.x,u.y);jlog((u.vet||u.d.n)+(u.worker?'':' (niv. '+u.lv+')')+' tombe'+(u.lastBy?' sous les coups : '+u.lastBy:'')+'.','fall');if(!u.worker&&(u.kills||0)>0){S.fame=S.fame||[];S.fame.push({n:u.vet||u.d.n,t:u.t,k:u.kills,lv:u.lv})}if(u.hero&&!u.temp){S.heroes[u.t]='fallen';toast(u.d.n+' est tombé. Il pourra être invoqué de nouveau demain.')}else if(!u.worker&&!u.hero)S.fallen.push({t:u.t,lv:u.lv,xp:u.xp});burst(u.x,u.y-8,'#7a1f18',10);float(u.x,u.y-34,u.d.n+' tombe','#ff8b7b');if(sel===u)closeInfo()}
-  S.units=S.units.filter(u=>u.hp>0);selU=selU.filter(u=>S.units.includes(u));
+  for(const u of S.units)if(u.solo&&u.hp<=0&&!(u.down>0))soloDown(u);
+  for(const u of S.units)if(u.hp<=0&&!u.solo){S.ns.lostU++;sfx('udie',u.x,u.y);jlog((u.vet||u.d.n)+(u.worker?'':' (niv. '+u.lv+')')+' tombe'+(u.lastBy?' sous les coups : '+u.lastBy:'')+'.','fall');if(!u.worker&&(u.kills||0)>0){S.fame=S.fame||[];S.fame.push({n:u.vet||u.d.n,t:u.t,k:u.kills,lv:u.lv})}if(u.hero&&!u.temp){S.heroes[u.t]='fallen';toast(u.d.n+' est tombé. Il pourra être invoqué de nouveau demain.')}else if(!u.worker&&!u.hero)S.fallen.push({t:u.t,lv:u.lv,xp:u.xp});burst(u.x,u.y-8,'#7a1f18',10);float(u.x,u.y-34,u.d.n+' tombe','#ff8b7b');if(sel===u)closeInfo()}
+  S.units=S.units.filter(u=>u.hp>0||u.solo);selU=selU.filter(u=>S.units.includes(u));
   for(const f of S.fx){f.t+=dt;f.x+=f.vx*dt;f.y+=f.vy*dt;f.vy+=(f.sp?20:60)*dt}
   S.fx=S.fx.filter(f=>f.t<f.life);
   if(S.vfx){for(const v of S.vfx)v.t+=dt;S.vfx=S.vfx.filter(v=>v.t<v.dur)}
@@ -1314,7 +1329,7 @@ const CUR={
 };
 function setCursor(){let c=CUR.arrow;if(drag&&drag.moved&&!painting)c=CUR.grab;else if(rallyQ)c=CUR.order;else if(tool)c=CUR.build;else if(selU.length)c=hoverEnt&&!hoverEnt.d.s&&!M[hoverEnt.t]?CUR.hot:CUR.order;else if(hoverEnt)c=CUR.hot;if(cv.style.cursor!==c)cv.style.cursor=c}
 let rMoved=false,sbox=null,lpT=null;
-cv.addEventListener('contextmenu',e=>{e.preventDefault();if(rMoved){rMoved=false;return}if(selU.length){const w=toW(e.clientX,e.clientY);order(w)}});
+cv.addEventListener('contextmenu',e=>{e.preventDefault();if(rMoved){rMoved=false;return}if(S.solo){soloTap(toW(e.clientX,e.clientY));return}if(selU.length){const w=toW(e.clientX,e.clientY);order(w)}});
 function boxStart(x,y){sbox={x0:x,y0:y,x1:x,y1:y};const b=$('selbox');b.style.display='block';boxDraw()}
 function boxDraw(){const b=$('selbox'),l=Math.min(sbox.x0,sbox.x1),t=Math.min(sbox.y0,sbox.y1);b.style.left=l+'px';b.style.top=t+'px';b.style.width=Math.abs(sbox.x1-sbox.x0)+'px';b.style.height=Math.abs(sbox.y1-sbox.y0)+'px'}
 function boxEnd(add){$('selbox').style.display='none';const l=Math.min(sbox.x0,sbox.x1),r=Math.max(sbox.x0,sbox.x1),t=Math.min(sbox.y0,sbox.y1),bt=Math.max(sbox.y0,sbox.y1);sbox=null;
@@ -1330,6 +1345,7 @@ cv.addEventListener('pointerdown',e=>{
   if(e.button===2||e.button===1){drag={sx:e.clientX,sy:e.clientY,moved:false,pan:true};rMoved=false;return}
   if(ptrs.size===1){drag={sx:e.clientX,sy:e.clientY,moved:false,shift:e.shiftKey};
     if(tool==='wall'||tool==='stone'){painting=true;lastPaint='';paintAt(e.clientX,e.clientY)}
+    else if(S.solo){}
     else if(!tool&&!rallyQ&&e.pointerType==='mouse'){drag.sel=true}
     else if(!tool&&!rallyQ){clearTimeout(lpT);lpT=setTimeout(()=>{if(drag&&!drag.moved&&ptrs.size===1){drag.sel=true;drag.touchSel=true;boxStart(drag.sx,drag.sy);if(navigator.vibrate)try{navigator.vibrate(15)}catch(_){}}},380)}}
   else{painting=false;drag=null;clearTimeout(lpT)}
@@ -1354,7 +1370,7 @@ cv.addEventListener('pointermove',e=>{
   if(!drag)return;
   const far=Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)>8;
   if(drag.sel){if(far&&!sbox)boxStart(drag.sx,drag.sy);if(sbox){drag.moved=true;sbox.x1=e.clientX;sbox.y1=e.clientY;boxDraw()}return}
-  if(far){drag.moved=true;clearTimeout(lpT);if(drag.pan)rMoved=true}
+  if(far){drag.moved=true;clearTimeout(lpT);if(drag.pan)rMoved=true;if(S.solo)S.follow=0}
   if(drag.moved){cam.x-=(e.clientX-prev.x)/cam.z;cam.y-=(e.clientY-prev.y)/cam.z;clampCam()}
 });
 function up(e){
@@ -1410,7 +1426,7 @@ function order(w,target){
 function assignW(u,tg){if(!(tg&&tg.d&&tg.d.s))return false;if(u.d.build&&(tg.build||tg.upg)){u.site=tg;u.off=(Math.random()-.5)*24;return true}if(u.d.work&&tg.t===u.d.work&&ready(tg)){u.workB=tg;u.spot=workSpot(u);return true}return false}
 const marks=[];
 function tap(sx,sy,shift){
-  const w=toW(sx,sy);
+  const w=toW(sx,sy);if(S.solo){soloTap(w);return}
   if(rallyQ){if(!inClearing(w.x,w.y,1.1)){toast('Hors de la clairière.');return}rallyQ.post={x:w.x,y:w.y};marks.push({x:w.x,y:w.y,t:0});toast(getD(rallyQ.t).n+' se déploiera ici.');rallyQ=null;hintTxt();setCursor();return}
   if(tool){if(tryPlace(tool,cellOf(w.x,w.y))&&!shift){tool=null;renderCards();hintTxt();setCursor()}return}
   if(S.merchant&&Math.hypot(w.x-S.merchant.x,(w.y-S.merchant.y+10)*1.4)<26){openMerchant();return}
@@ -1562,7 +1578,7 @@ function drawDog(g,u,t){const x=u.x,y=u.y,f=u.face,l=Math.sin(u.walk*1.8)*2.4,c=
 function meleeHit(u,m,sU){let mul=sU.mul;if(hasT(u,'exec')&&m.hp<m.max/2)mul*=1.5;if(u.d.dog&&(m.d.dig||m.d.shadow))mul*=2;
   let r=roll(sU.dice,monDef(m),mul);if(r.fail&&u.trait==='chance')r=roll(sU.dice,monDef(m),mul);hurt(m,r,null,u);if(r.dbl)onDbl(u,m);
   if(hasT(u,'stun'))m.hold=Math.max(m.hold,m.d.boss?.3:.8);if(hasT(u,'bleedd'))m.bleed=Math.max(m.bleed||0,4);
-  const ex=hasT(u,'trample')?2:hasT(u,'cleave')?1:0;if(ex){let n=0;for(const o of S.mons){if(n>=ex)break;if(o===m||o.hp<=0||o.d.fly)continue;if(Math.hypot(o.x-m.x,o.y-m.y)<36){hurt(o,roll(sU.dice,monDef(o),mul),null,u);n++}}}}
+  const ex=(hasT(u,'trample')?2:hasT(u,'cleave')?1:0)+(u.solo?bn('tourb'):0);if(ex){let n=0;for(const o of S.mons){if(n>=ex)break;if(o===m||o.hp<=0||o.d.fly)continue;if(Math.hypot(o.x-m.x,o.y-m.y)<36){hurt(o,roll(sU.dice,monDef(o),mul),null,u);n++}}}}
 const trapMul=()=>(hasB('poudre')?1.25:1)*(hasR('fiole')?1.25:1);
 function useUlt(u){if((u.ult||0)<100)return;u.ult=0;const sk=SK[u.t];u.furyT=S.clock+20;shake=.5;sfx('roar');ring(u.x,u.y,200,'#ffd27a');float(u.x,u.y-56,'Ultime : '+sk.n,'#ffd27a',1);burst(u.x,u.y-20,'#ffd27a',30);jlog(u.d.n+' déchaîne son ultime.','skill');
   for(let k=0;k<3;k++)S.timers.push({at:S.clock+k*3,fn:()=>{if(S.units.includes(u))try{sk.fn(u)}catch(e){}}})}
@@ -1787,7 +1803,7 @@ function encTab(t){const tabs=[['m','Bestiaire'],['b','Bâtiments'],['u','Unité
 $('mBest').onclick=()=>{$('mEnc').click();encTab('m')};
 $('mHelp').onclick=()=>{$('mPanel').innerHTML=`<p>Tous les dés sont des d6.</p><ul><li><img class="ic dc" alt="" src="img/i/dW.webp"> Blanc : compte seulement s'il dépasse la DEF de la cible.</li><li><img class="ic dc" alt="" src="img/i/dR.webp"> Rouge : ignore la DEF.</li><li><img class="ic dc" alt="" src="img/i/dB.webp"> Mystique : doit dépasser la DEF, valeur doublée sur un double.</li><li>Un double 1 donne un Échec, quels que soient les autres dés.</li><li>Feu et Gel s'annulent : poser l'un retire l'autre.</li><li>Double (deux dés identiques, hors double 1) : effet propre à l'unité. Gardien : assomme. Fusilier : repousse. Arbalétrier : saignement. Porte-bouclier : +2 DEF. Mystique : le feu se propage. Telluricien : gel prolongé. Prêtre : soigne un allié. Cavalier : frappe aussitôt de nouveau.</li><li>Les créatures volantes ne sont touchées que par les tireurs et les tours.</li></ul><p><b>Commandes</b></p><ul><li>Toucher une unité : la sélectionner. Double toucher : toutes celles du même type. Maj + clic : ajouter.</li><li>Puis toucher la carte (ou clic droit) : l'y poster. Un bâtisseur ou un villageois s'affecte en touchant un chantier ou un bâtiment de son métier.</li><li>Glisser avec le clic gauche : cadre de sélection (Maj pour ajouter). Sur écran tactile : appui long puis glisser.</li><li>Déplacer la carte : clic droit ou molette enfoncée glissés, flèches ou ZQSD. Sur écran tactile : glisser un doigt.</li><li>1 à 9 : cartes · Espace : pause · Échap : annuler.</li></ul>`};
 $('mRestart').onclick=()=>{const b=$('mRestart');if(b.textContent!=='Confirmer : tout recommencer ?'){b.textContent='Confirmer : tout recommencer ?';return}
-  newGame();countGame();$('ovMenu').classList.remove('on');paused=false};
+  if(S.solo)newSolo();else newGame();countGame();$('ovMenu').classList.remove('on');paused=false};
 $('mQuit').onclick=()=>goHome();
 $('mJour').onclick=()=>{$('ovMenu').querySelector('.box').classList.add('wide');$('mPanel').innerHTML=journalHtml();const bind=()=>$('mPanel').querySelectorAll('[data-jd]').forEach(b=>b.onclick=()=>{$('mPanel').innerHTML=journalHtml(+b.dataset.jd);bind()});bind()};
 $('mStats').onclick=()=>{$('ovMenu').querySelector('.box').classList.add('wide');metaFlush();$('mPanel').innerHTML=`<h4 style="margin:4px 0">Cette partie</h4>`+endStatsHtml()+`<h4 style="margin:10px 0 4px">Toutes vos parties</h4>`+statsHtml()};
@@ -1796,12 +1812,13 @@ $('mReload').onclick=()=>{if(!getSave()){toast('Aucune aube sauvegardée pour l\
 $('mSave').onclick=()=>{if(S.phase==='night'||S.eclipse){toast('Impossible de sauvegarder pendant la nuit.');return}const fd=t=>{try{return new Date(t).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}catch(e){return''}};
   $('mPanel').innerHTML='<div class="sec"><h4>'+ic('flag')+'Sauvegarder dans un emplacement</h4>'+[1,2,3].map(i=>{const o=getSave('lamuline-slot'+i);return`<div class="sv"><div class="svd">${o?o.day:'–'}</div><div><b>Emplacement ${i}</b><small>${o?'Jour '+o.day+' · '+fd(o.at):'Vide'}</small></div><div class="sp"><button class="btn hot" data-sv="${i}">${o?'Écraser':'Sauvegarder'}</button></div></div>`}).join('')+'</div>';
   $('mPanel').querySelectorAll('[data-sv]').forEach(b=>b.onclick=()=>{saveGame('lamuline-slot'+b.dataset.sv);toast('Partie sauvegardée (emplacement '+b.dataset.sv+').');$('mSave').click()})};
-function setupStart(){$('hmMods').innerHTML=modsHtml();const mx=(CFG.mods||[]).reduce((a,k)=>a*(MODS[k]?MODS[k].x:1),1);$('modX').textContent=mx>1?'score ×'+mx.toFixed(2).replace(/0$/,''):'aucun · score ×1';$('hmMods').querySelectorAll('[data-mod]').forEach(b=>b.onclick=()=>{const k=b.dataset.mod,l=CFG.mods||[];CFG.mods=l.includes(k)?l.filter(x=>x!==k):[...l,k];saveCfg();setupStart()});const sv=getSave(),bl=$('bLoad');if(sv){bl.style.display='';bl.innerHTML=`<span>${ic('play')}Continuer · jour ${sv.day}<small>Reprendre à la dernière aube</small></span>`}else bl.style.display='none';hmRender();document.querySelectorAll('[data-diff]').forEach(b=>b.classList.toggle('on',+b.dataset.diff===(CFG.diff||1)))}
+function setupStart(){$('hmMods').innerHTML=modsHtml();const mx=(CFG.mods||[]).reduce((a,k)=>a*(MODS[k]?MODS[k].x:1),1);$('modX').textContent=mx>1?'score ×'+mx.toFixed(2).replace(/0$/,''):'aucun · score ×1';$('hmMods').querySelectorAll('[data-mod]').forEach(b=>b.onclick=()=>{const k=b.dataset.mod,l=CFG.mods||[];CFG.mods=l.includes(k)?l.filter(x=>x!==k):[...l,k];saveCfg();setupStart()});const sv=getSave(),bl=$('bLoad');if(sv){bl.style.display='';bl.innerHTML=`<span>${ic('play')}Continuer · jour ${sv.day}<small>Reprendre à la dernière aube</small></span>`}else bl.style.display='none';{const r=soloBest();$('soloRec').textContent=r?'Record : nuit '+r+'.':''}hmRender();document.querySelectorAll('[data-diff]').forEach(b=>b.classList.toggle('on',+b.dataset.diff===(CFG.diff||1)))}
 document.querySelectorAll('[data-diff]').forEach(b=>b.onclick=()=>{CFG.diff=+b.dataset.diff;saveCfg();setupStart()});
 $('bLoad').onclick=()=>startLoad('lamuline-save');
 $('bRules').onclick=()=>{$('mHelp').click();dialog('<h2>Comment jouer</h2><ul><li>Le jour, bâtissez et recrutez. Chaque chantier prend du temps : les bâtisseurs l\'accélèrent.</li><li>Touchez une unité puis un point de la carte pour l\'y poster. Encadrez une zone vide pour la faire patrouiller.</li><li>Les palissades bloquent la horde et vos unités : prévoyez des portes.</li><li>Les crânes en lisière annoncent par où viendra la prochaine horde.</li><li>Tenez '+GOAL+' nuits, puis le mode infini commence. Si le donjon tombe, Lamuline tombe.</li><li>À l\'aube, chaque habitant mange : 2 vivres par garde, 1 par villageois, 3 par héros. Sans vivres, la garde frappe moins fort.</li><li>Au niveau 3 puis 5, chaque garde choisit un talent (étoile dorée au-dessus de sa tête). Au niveau 4, il devient vétéran avec un nom et un trait.</li><li>Depuis le Donjon, envoyez des gardes en expédition de jour. Les os ramassés sur la horde se façonnent à l\'Armurerie.</li></ul>'+$('mPanel').innerHTML,[{t:'Fermer',hot:1}])};
+$('bSolo').onclick=()=>{newSolo();countGame();$('ovStart').classList.remove('on');paused=false;$('bPause').classList.remove('on');$('bPause').innerHTML=PAUSE_I;toast('Solo Defender : cliquez sur la carte pour déplacer le Gardien, sur une créature pour la cibler. La horde arrive bientôt.')};
 $('bGo').onclick=()=>{newGame();countGame();if(S.mods.length)toast('Défis : '+S.mods.map(k=>MODS[k].n).join(', ')+'.');$('ovStart').classList.remove('on');paused=false;$('bPause').classList.remove('on');$('bPause').innerHTML=PAUSE_I};
-function newGame(){cam.z=minZ();fresh();closeInfo();tool=null;S.speed=1;$('spd').textContent='×1';$('bSpeed').classList.remove('on');renderCards();renderQueue();centerOn(S.keep.x,S.keep.y+60)}
+function newGame(){soloOff();cam.z=minZ();fresh();closeInfo();tool=null;S.speed=1;$('spd').textContent='×1';$('bSpeed').classList.remove('on');renderCards();renderQueue();centerOn(S.keep.x,S.keep.y+60)}
 let dlgPrev=false;
 function dialog(html,buttons,onClose){const b=$('dlgBox');b.classList.remove('rpbox','wide');b.innerHTML=html+`<div class="dlg-acts">${buttons.map((x,i)=>`<button class="btn${x.hot?' hot':''}" data-dl="${i}" ${x.dis?'disabled':''}>${x.t}</button>`).join('')}</div>`;
   if(!$('ovDlg').classList.contains('on')){dlgPrev=paused}paused=true;document.body.classList.remove('paused');$('ovDlg').classList.add('on');
@@ -1863,9 +1880,10 @@ const ACH=[
 function metaTick(nightKills){const m=metaG();m.ach=m.ach||{};m.kills=(m.kills||0)+(nightKills||0);m.best=Math.max(m.best||0,S.day);
   for(const u of S.units)if(!u.worker&&(u.kills||0)>((m.star&&m.star.k)||0))m.star={t:u.t,n:u.d.n,k:u.kills,lv:u.lv,day:S.day,hero:!!u.hero};
   for(const a of ACH)if(!m.ach[a.id]&&a.f(S,m)){m.ach[a.id]=Date.now();toast('Haut fait débloqué : '+a.n+' !')}metaS(m)}
-const VERSION='0.9.8';
+const VERSION='0.9.9';
 document.querySelectorAll('[data-ver]').forEach(e=>e.textContent='v'+VERSION);document.title='Les Nuits de Lamuline · v'+VERSION;
 const NOTES=[
+  ['v0.9.9','Nouveau mode : Solo Defender',['Solo Defender, depuis l\'accueil : un seul Gardien, sans bâtir ni recruter','Clic sur la carte : le Gardien s\'y rend ; clic sur une créature : il la prend pour cible ; il frappe seul tout ce qui l\'approche','La caméra le suit (glisser la carte la libère, le bouton du cadre la recentre)','À chaque aube : un bienfait parmi trois (PV, dégâts, dés, DEF, vitesse, moulinet, soif de sang, donjon…) et ses talents aux niveaux 3 et 5','À terre, il se relève au donjon après quelques secondes : le donjon doit tenir seul','Hordes réduites, une entrée de plus aux nuits 5, 10 et 15, boss toutes les 5 nuits ; record de nuits gardé sur l\'accueil']],
   ['v0.9.8','Difficulté adoucie',['Rations : à partir du jour 4 seulement, 1 par garde et 2 par héros, villageois exemptés ; la famine ne coûte plus que 10 % de dégâts','Les corbeaux redeviennent attaquables au corps à corps (vautours et Mère-Corneille restent hors de portée)','Nouveaux adversaires plus tardifs : frondeurs nuit 8, vautours nuit 9, amas nuit 10, chamans nuit 11 ; portée des frondeurs réduite','Élites à plusieurs affixes dès la nuit 13 (au lieu de 10) ; blindé : +2 DEF au lieu de +3','Brouillard : −10 % de portée au lieu de −20 %','Zone de chasse des gardes rétablie comme en v0.9.5']],
   ['v0.9.7','Talents, vétérans, expéditions et météo',['Talents : au niveau 3 puis 5, chaque garde choisit entre deux branches (étoile dorée quand un choix attend)','Vétérans : au niveau 4, une recrue reçoit un nom et un trait (Cœur-de-Fer, Main-Rouge, Trompe-la-Mort…)','Nouvelles unités : Porte-étendard (+DEF, +dégâts, plus de fuite autour de lui), Tambour de guerre (vitesse et cadence), Chien de guerre (rapide, flaire les Ombres, traque les Fouisseurs) et le Chenil','Ultime des héros : une jauge se remplit en abattant des créatures ; trois fois sa compétence, +50 % de dégâts, invulnérable 10 s','Expéditions depuis le Donjon : forêt, ruines, hameau ou repaire, contre bois, pierre, vivres, os, avec un risque','Rations : chaque habitant mange à l\'aube ; sans vivres, la garde frappe moins fort','Os de charogne ramassés sur la horde, façonnés à l\'Ossuaire de l\'Armurerie (six améliorations permanentes)','Reliques débloquées d\'une partie à l\'autre, à équiper sur l\'accueil (1 à 3 emplacements)','Météo selon la saison : pluie (incendies difficiles), neige (tout ralentit), brouillard (portée réduite), feuilles d\'automne','Traces au sol : sang, brûlures, terre retournée ; les cadavres restent jusqu\'à l\'aube puis s\'effacent','Arrivée de la horde : brume rouge aux entrées, totems embrasés, voile rouge à la tombée de la nuit','Bâtiments abîmés assombris, braises sous 30 % de PV ; chantiers qui fument, bâtiments qui « poussent » à l\'achèvement','Portraits : blessé, à l\'agonie, en furie, vétéran','Le cadre d\'unité affiche de nouveau les boutons (compétence des héros, talents, renvoi)']],
   ['v0.9.6','Sons, journal et nouveaux adversaires',['Sons et musique synthétisés (réglages : volume de la musique, des effets, couper le son)','Journal de la nuit : événements et tableau de chasse (qui a tué quoi), depuis le menu ou le rapport de l\'aube','Fin de partie : courbes des ressources, créatures abattues par nuit, palmarès des unités','Statistiques sur toutes les parties (accueil et menu)','Prévision de la prochaine nuit sur la plaque : créatures, élites, menace estimée ; survol pour le détail par front','Barre de vie des boss','Accueil illustré, défis de départ (Horde vorace, Disette, Bois tendre, Nuit des élites, Sans répit, Nuits longues) qui multiplient le score','Menu : Signaler un bug (rapport à copier ou télécharger, avec sauvegarde)','Nouveaux monstres : Vautour charognard (volant, vise les bâtiments), Frondeur d\'os (tire sur les tours), Chaman (soigne et rend furieux), Amas grouillant (se divise)','Les volants ne sont plus touchés au corps à corps : il faut des tireurs ou des tours','Élites : affixes combinables, nouveaux Explosif, Blindé, Vampirique','Un boss toutes les 5 nuits : Colosse, le Chancre, la Mère-Corneille, le Roi-Bélier ; la Matriarche toutes les 8 nuits','Nuit 25 : la Charogne-Mère, boss final en trois phases','Doubles : deux dés identiques déclenchent un effet propre à l\'unité (assommer, repousser, saignement…)','Rôdeurs, corbeaux, ombres et grouillons ralentissent dans la lumière','Moteur plus rapide avec de grosses hordes']],
@@ -1902,7 +1920,7 @@ function loadGame(o){o=o||getSave();if(!o)return false;CFG.diff=o.diff||1;fresh(
   for(const x of o.units){const u=addUnit(x.t);u.lv=x.lv;u.xp=x.xp;u.post=x.post;u.x=x.x;u.y=x.y;u.spec=x.spec;u.stance=x.stance;u.kills=x.kills||0;u.tal=x.tal||null;u.vet=x.vet||null;u.trait=x.trait||null;u.ult=x.ult||0;u.exp=x.exp||null;if(u.exp)u.hidden=true}refreshMax();for(const x of o.units){}S.units.forEach((u,i)=>{u.hp=Math.min(u.max,o.units[i].hp)});
   for(const id in S.heroes)if(S.heroes[id]==='active'&&!S.units.some(u=>u.t===id))S.heroes[id]='ready';
   S.entries=openEntries(S.day);S.nextHorde=genHorde(S.day,S.nextNight||'normal');S.phase='day';S.t=0;return true}
-function endScreen(win){if(!win){if(S.over)return;S.over=true}metaTick(S.ns?S.ns.kills:0);metaFlush(win?{wins:1}:{losses:1});let l=[];if(!win)l=recordScore();
+function endScreen(win){if(S.solo&&!win)return soloEnd();if(!win){if(S.over)return;S.over=true}metaTick(S.ns?S.ns.kills:0);metaFlush(win?{wins:1}:{losses:1});let l=[];if(!win)l=recordScore();
   paused=true;$('ovEnd').classList.add('on');const sv=getSave();
   $('eh').textContent=win?'Lamuline tient bon':'Lamuline est tombée';
   $('ep').innerHTML=`<p>${win?`${GOAL} nuits repoussées, ${S.kills} créatures abattues. Le mode Infini commence : chaque nuit sera plus dure.`:`Le donjon s'est effondré au cours de la nuit ${S.day}. ${S.kills} créatures abattues.`}</p>`+(win?'':`<p>Score : <b>${score()}</b></p>`+boardHtml(l))+endStatsHtml();$('ovEnd').querySelector('.box').classList.add('wide');
@@ -2314,7 +2332,7 @@ function draw(t){
     if(!u.worker&&Math.hypot(u.post.x-u.x,u.post.y-u.y)>12){g.setLineDash([3,4]);g.strokeStyle='rgba(232,194,122,.6)';g.beginPath();g.moveTo(u.x,u.y);g.lineTo(u.post.x,u.post.y);g.stroke();g.setLineDash([])}
     if(!u.worker)flagMark(g,u.post.x,u.post.y,.85)}
   {const P=new Set(selU.filter(u=>u.patrol).map(u=>u.patrol));g.save();g.setLineDash([7,5]);g.lineDashOffset=-t*12;for(const r of P){g.fillStyle='rgba(255,210,122,.07)';g.fillRect(r.x0,r.y0,r.x1-r.x0,r.y1-r.y0);g.strokeStyle='rgba(255,210,122,.75)';g.lineWidth=1.5;g.strokeRect(r.x0,r.y0,r.x1-r.x0,r.y1-r.y0)}g.restore()}
-  for(const m of marks){m.t+=1/60;const r=6+m.t*30;g.globalAlpha=Math.max(0,1-m.t*1.5);g.strokeStyle='#e8c27a';g.lineWidth=2;g.beginPath();g.ellipse(m.x,m.y,r,r*.45,0,0,7);g.stroke();g.globalAlpha=1}
+  for(const m of marks){m.t+=1/60;const r=6+m.t*30;g.globalAlpha=Math.max(0,1-m.t*1.5);g.strokeStyle=m.atk?'#e0503a':'#e8c27a';g.lineWidth=2;g.beginPath();g.ellipse(m.x,m.y,r,r*.45,0,0,7);g.stroke();g.globalAlpha=1}
   for(let k=marks.length-1;k>=0;k--)if(marks[k].t>.7)marks.splice(k,1);
   if(tool&&hover){const a=anchorFor(tool,hover),ok=canPlace(tool,a.i,a.j)&&afford(B[tool].cost),s=B[tool].s;
     const GC=GATE(tool)?gateCells(a.i,a.j):null,cl=GC?GC.cells:[];if(!GC)for(let x=0;x<s;x++)for(let y=0;y<s;y++)cl.push([a.i+x,a.j+y]);for(const [ci,cj] of cl){const p=iso(ci,cj);diamond(g,p.x,p.y,1,ok?'rgba(120,200,110,.28)':'rgba(220,70,50,.32)')}
@@ -2564,6 +2582,96 @@ function hud(){
   if(sel){if(sel.multi?selU.length:(sel.d.s?S.blds.includes(sel):(S.units.includes(sel)||S.mons.includes(sel))))renderInfo();else closeInfo()}
   if(hoverEnt&&!ptrs.size){if(hoverEnt.hidden||(!hoverEnt.d.s&&!S.units.includes(hoverEnt)&&!S.mons.includes(hoverEnt))||(hoverEnt.d.s&&!S.blds.includes(hoverEnt))){hoverEnt=null;hideTip()}else placeTip()}
 }
+// ---------- Mode Solo Defender : un seul Gardien, piloté au clic ----------
+const SOLO_DAY=30; // répit entre deux nuits (secondes de jeu)
+const BOONS={
+  pv:{n:'Endurance',d:'+20 % PV max',i:'hp'},
+  force:{n:'Bras de fer',d:'+15 % de dégâts',i:'crit'},
+  de:{n:'Lame runique',d:'+1 dé rouge à chaque coup',i:'up',max:3},
+  def:{n:'Plates d\'acier',d:'+1 DEF',i:'def',max:4},
+  vit:{n:'Bottes de route',d:'+12 % de vitesse',i:'time',max:4},
+  cad:{n:'Garde rapprochée',d:'Frappe 10 % plus vite',i:'crit',max:4},
+  sang:{n:'Soif de sang',d:'+4 PV par créature abattue',i:'hp'},
+  souffle:{n:'Second souffle',d:'Récupère deux fois plus vite hors combat',i:'heal',max:3},
+  tourb:{n:'Moulinet',d:'Chaque coup touche aussi un ennemi voisin',i:'crit',max:2},
+  keep:{n:'Archères aux créneaux',d:'Le donjon monte d\'un niveau et tire sur la horde',i:'up',max:1,ok:()=>S.keep.lv<3},
+  repair:{n:'Maçons de l\'aube',d:'Le donjon retrouve tous ses PV',i:'build',ok:()=>S.keep.hp<S.keep.max*.8,once:1}
+};
+const bn=k=>(S.boon&&S.boon[k])||0;
+const soloU=()=>S.solo?S.units.find(u=>u.solo):null;
+function soloBest(){try{return +localStorage.getItem('lamuline-solo-best')||0}catch(e){return 0}}
+function newSolo(){
+  cam.z=Math.max(minZ(),1.5);fresh();closeInfo();tool=null;S.speed=1;$('spd').textContent='×1';$('bSpeed').classList.remove('on');
+  S.solo=1;S.boon={};S.mods=[];S.relics=[];S.units=[];selU=[];S.res={bois:0,pierre:0,vivres:0,cendre:0,os:0};
+  {const b=S.keep;b.lv=2;b.max=Math.round((L(b).hp||1)*bHpMul());b.hp=b.max}
+  const u=addUnit('gardien');u.solo=1;u.name='Gardien de Lamuline';u.x=S.keep.x+10;u.y=S.keep.y+70;u.post={x:u.x,y:u.y};refreshMax();u.hp=u.max;
+  S.entries=openEntries(1);prepNext();S.t=DAY-SOLO_DAY-20;S.follow=1;
+  document.body.classList.add('solo');renderCards();renderQueue();centerOn(u.x,u.y);soloHud(true);
+}
+function soloEnd(){if(S.over)return;S.over=true;metaTick(S.ns?S.ns.kills:0);metaFlush({losses:1});const u=soloU(),best=soloBest(),n=S.day-1;
+  paused=true;$('ovEnd').classList.add('on');$('eh').textContent='Le donjon est tombé';
+  $('ep').innerHTML=`<p>Le Gardien a tenu <b>${n} nuit${n>1?'s':''}</b> et abattu <b>${S.kills}</b> créatures${u?' (niveau '+u.lv+')':''}.</p><p>${n>=best&&n>0?'Nouveau record !':'Record : nuit '+best+'.'}</p>`+(()=>{const H=(S.hist||[]).slice();H.push({d:S.day,k:S.ns?S.ns.kills:0});return`<div class="endst"><div class="wide"><h4>${ic('skull')}Créatures abattues par nuit</h4>${chartSvg(H,[['k','#c0392b',1]])}</div></div>`})();$('ovEnd').querySelector('.box').classList.add('wide');
+  $('eBtns').innerHTML=`<button class="btn hot" id="eNew">${ic('fire')}Rejouer</button><button class="btn" id="eHome">${ic('house')}Accueil</button>`;
+  $('eNew').onclick=()=>{$('ovEnd').classList.remove('on');newSolo();countGame();paused=false};$('eHome').onclick=()=>goHome()}
+function soloOff(){document.body.classList.remove('solo')}
+// statistiques du Gardien selon les bonus choisis (appelé depuis us())
+function soloStats(o){o.hp*=2.4*(1+.2*bn('pv'));o.mul*=1.5*(1+.15*bn('force'));o.def+=bn('def');o.sp*=1+.12*bn('vit');o.cd*=Math.pow(.9,bn('cad'));o.dice+='R'.repeat(bn('de'))}
+function soloStep(u,dt){
+  if(u.down>0){u.down-=dt;u.hidden=true;u.hp=0;
+    if(u.down<=0){u.down=0;u.hidden=false;refreshMax();u.hp=Math.round(u.max*.6);u.x=S.keep.x+10;u.y=S.keep.y+60;u.post={x:u.x,y:u.y};u.mv=0;u.focus=null;u.nav=null;
+      fxAdd('heal',u.x,u.y-18,{dur:.8,sz:48});float(u.x,u.y-44,'De retour !','#ffd27a',1);sfx('lvl',u.x,u.y)}
+    return true}
+  // récupération hors combat
+  let near=false;for(const m of S.mons)if(Math.abs(m.x-u.x)<170&&Math.hypot(m.x-u.x,m.y-u.y)<170){near=true;break}
+  if(!near&&u.hp<u.max)u.hp=Math.min(u.max,u.hp+u.max*(S.phase==='night'?.012:.05)*(1+bn('souffle'))*dt);
+  if(u.focus&&(u.focus.hp<=0||!S.mons.includes(u.focus)))u.focus=null;
+  return false;
+}
+function soloDown(u){
+  u.down=8+S.day*.6;u.hp=0;u.hidden=true;u.mv=0;u.focus=null;burst(u.x,u.y-14,'#8a1a10',16);sfx('udie',u.x,u.y);S.ns.lostU++;
+  jlog('Le Gardien tombe'+(u.lastBy?' sous les coups : '+u.lastBy:'')+'. Il se relève au donjon.','fall');toast('Le Gardien est à terre ! Il se relève au donjon dans '+Math.ceil(u.down/TIME)+' s. Le donjon doit tenir seul.');
+}
+function soloTap(w){
+  const u=soloU();if(!u)return;if(u.down>0){toast('Le Gardien se relève au donjon…');return}
+  const e=pickAt(w);
+  if(e&&M[e.t]&&S.mons.includes(e)){u.focus=e;u.mv=0;u.post={x:e.x,y:e.y};marks.push({x:e.x,y:e.y,t:0,atk:1});return}
+  if(!inClearing(w.x,w.y,1.12)){toast('Hors de la clairière.');return}
+  u.focus=null;u.post={x:w.x,y:w.y};u.mv=1;u.mvT=0;u.nav=null;marks.push({x:w.x,y:w.y,t:0});S.follow=1;
+}
+function soloCam(dt){const u=soloU();if(!u||!S.follow||ptrs.size)return;const tx=u.x-vw/cam.z/2,ty=u.y-20-vh/cam.z/2,k=Math.min(1,dt*3);cam.x+=(tx-cam.x)*k;cam.y+=(ty-cam.y)*k;clampCam()}
+function soloDawn(burned){
+  S.phase='dawn';S.t=0;S.st.nights++;if(!S.lostNight)S.st.perfect++;
+  const u=soloU(),best=soloBest();if(S.day>best)try{localStorage.setItem('lamuline-solo-best',S.day)}catch(e){}
+  sfx('bell');histPush();metaFlush({nights:1});jlog('Aube : '+S.ns.kills+' créatures abattues par le Gardien.','dawn');
+  S.rubble=[];for(const c of S.corpses)c.dis=0;for(const d of (S.decals||[]))d.fade=0;S.clouds=[];
+  {const k=S.keep;k.hp=Math.min(k.max,k.hp+k.max*.3)}
+  if(u){u.xp+=25;if(u.down>0){u.down=.01}else{refreshMax();u.hp=u.max}}levelCheck();
+  const n=S.day;S.day++;S.entries=openEntries(S.day);prepNext();metaTick(S.ns?S.ns.kills:0);
+  toast((burned?'Le soleil brûle '+burned+' créatures. ':'')+'Nuit '+n+' repoussée !'+(S.day-1>best&&best?' Nouveau record !':''));
+  setTimeout(()=>soloPick(n),500);
+}
+// à l'aube : talent éventuel, puis un bonus parmi trois
+function soloPick(n){
+  const u=soloU();if(!u||S.over)return;
+  if(talPending(u)){const L_=(u.lv>=3&&!(u.tal&&u.tal[3]))?3:5;
+    dialog(`<h2>Talent du Gardien · niveau ${L_}</h2><p>Choisissez une voie.</p>`,TAL.gardien[L_].map(([k,nm,dd])=>({t:`<b>${nm}</b> · ${dd}`,hot:1,fn:()=>{u.tal=u.tal||{};u.tal[L_]=k;refreshMax();burst(u.x,u.y-14,'#ffd27a',12);sfx('lvl');setTimeout(()=>soloPick(n),60)}})));return}
+  const pool=Object.keys(BOONS).filter(k=>{const b=BOONS[k];return(!b.max||bn(k)<b.max)&&(!b.ok||b.ok())}).sort(()=>Math.random()-.5).slice(0,3);
+  const card=k=>{const b=BOONS[k],c=bn(k);return`<button class="btn boon" data-boon="${k}"><img class="ic" alt="" src="img/i/${b.i}.webp"><b>${b.n}</b><small>${b.d}</small>${c?`<em>déjà ×${c}</em>`:''}</button>`};
+  dialog(`<h2>Nuit ${n} repoussée</h2><p>Le Gardien a abattu ${S.ns.kills} créature${S.ns.kills>1?'s':''} cette nuit. Choisissez un bienfait pour la suivante.</p><div class="boons">${pool.map(card).join('')}</div>`,[{t:'Passer'}]);
+  $('dlgBox').querySelectorAll('[data-boon]').forEach(el=>el.onclick=()=>{const k=el.dataset.boon;S.boon[k]=bn(k)+1;
+    if(k==='keep'){const b=S.keep,f=b.hp/b.max;b.lv=Math.min(3,b.lv+1);b.max=Math.round((L(b).hp||1)*bHpMul());b.hp=Math.round(b.max*Math.max(f,.6));b.popT=.4;burst(b.x,b.y-30,'#ffcf6a',16)}
+    if(k==='repair'){S.keep.hp=S.keep.max;burst(S.keep.x,S.keep.y-30,'#9fe08a',16)}
+    refreshMax();const g=soloU();if(g&&!g.down)g.hp=g.max;toast(BOONS[k].n+' : '+BOONS[k].d+'.');sfx('lvl');closeDlg()});
+}
+function soloHud(force){
+  const el=$('soloHud');if(!S.solo){el.classList.remove('on');return}el.classList.add('on');const u=soloU();if(!u)return;
+  const hp=Math.max(0,u.hp)/u.max,xp0=u.lv>1?xpNeed(u.lv-1):0,xp1=xpNeed(u.lv),xf=u.lv>=10?1:(u.xp-xp0)/(xp1-xp0);
+  const bs=Object.keys(S.boon||{}).filter(k=>S.boon[k]).map(k=>`<i title="${BOONS[k].n} : ${BOONS[k].d}"><img class="ic" alt="" src="img/i/${BOONS[k].i}.webp">${S.boon[k]>1?S.boon[k]:''}</i>`).join('');
+  const h=`<img class="sp" alt="" src="img/u/gardien_idle.webp"><div class="s-b"><div class="s-n"><b>${u.vet||'Gardien'}</b><span>niv. ${u.lv}</span><span>${ic('skull')} ${u.kills||0}</span>${u.down>0?`<span class="s-dn">À terre · ${Math.ceil(u.down/TIME)} s</span>`:''}</div>
+    <div class="s-bar hp"><i style="width:${(hp*100).toFixed(1)}%"></i><em>${Math.ceil(Math.max(0,u.hp))} / ${Math.round(u.max)}</em></div><div class="s-bar xp"><i style="width:${(Math.max(0,Math.min(1,xf))*100).toFixed(1)}%"></i></div>
+    <div class="s-bl">${bs||'<small>Les bienfaits choisis à l\'aube s\'affichent ici.</small>'}</div></div><button class="btn sq" id="soloC" title="Recentrer sur le Gardien">${ic('house')}</button>`;
+  if(force||el._h!==h){el.innerHTML=h;el._h=h;const c=$('soloC');if(c)c.onclick=()=>{S.follow=1;centerOn(u.x,u.y)}}
+}
 function frame(now){
   const dt=Math.min(.05,(now-last)/1000);last=now;
   {const r=cv.getBoundingClientRect();if(Math.abs(r.width-vw)>.5||Math.abs(r.height-vh)>.5||r.left!==rect.left||r.top!==rect.top)resize()}
@@ -2571,7 +2679,8 @@ function frame(now){
   if(hoverEnt&&!hoverEnt.d.s&&!ptrs.size&&$('tip').style.display==='block')posEntTip();
   if(S.queue.length){const q=$('queue').querySelector('.qi:not(.xq)');if(q)q.style.setProperty('--p',((1-S.queue[0].left/S.queue[0].total)*100).toFixed(2))}
   if(!paused&&!$('ovStart').classList.contains('on')){PEND.time+=dt;if(PEND.time>30)metaFlush()}
-  uiT+=dt;if(uiT>.2){uiT=0;hud()}
+  if(S.solo&&!paused)soloCam(dt);
+  uiT+=dt;if(uiT>.2){uiT=0;hud();soloHud()}
   try{draw(now/1000)}catch(e){console.error(e)}
   requestAnimationFrame(frame);
 }
